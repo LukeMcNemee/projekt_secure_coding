@@ -18,6 +18,14 @@ public:
     Coordinate parseInput(std::string line);
 
 private:
+    /**
+     * @brief Count
+     * counts number of occurences of substring in string
+     * @param str substring to find
+     * @param obj string in which is searched
+     * @return number of occurences
+     */
+    int Count( const std::string & str, const std::string & obj );
 
     //methods for individual formats
 

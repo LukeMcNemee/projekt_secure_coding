@@ -15,7 +15,7 @@ public:
     void setLatitudeMinutes(unsigned short value);
     void setLatitudeSeconds(unsigned short value);
 
-    compas setLongitudeCompas(compas value);
+    void setLongitudeCompas(compas value);
     void setLongitudeDegrees(unsigned short value);
     void setLongitudeMinutes(unsigned short value);
     void setLongitudeSeconds(unsigned short value);
