@@ -34,3 +34,16 @@ ddd.dddddd[NS] ddd.dddddd[WE]
 [NS]ddd°mm.mmmmm' [WE]ddd°mm.mmmmm'
 <br/>
 [NS]ddd.dddddd [WE]ddd.dddddd
+
+Range of input values:
+* degrees:
+** 180 W (-180) - 180 E (180)
+** 90 N (90) - 90 S (-90)
+
+* minutes:
+** 0 - 59.99999
+
+* seconds
+** 0 - 59
+
+
