@@ -17,9 +17,9 @@ Coordinate::Coordinate()
 std::string Coordinate::toSVG() {
 
     unsigned short x = (longitudeCompas == E) ? 2 * (180 + longitudeDegrees) : 2 * (180 - longitudeDegrees);
-    if(longitudeMinutes >= 30) x = (longitudeCompas == 'E') ? x + 1 : x - 1;
+    if(longitudeMinutes >= 30) x = (longitudeCompas == E) ? x + 1 : x - 1;
     unsigned short y = (latitudeCompas == S) ? 2 * (90 + latitudeDegrees) : 2 * (90 - latitudeDegrees);
-    if(latitudeMinutes >= 30) y = (latitudeCompas == 'S') ? y + 1 : y - 1;
+    if(latitudeMinutes >= 30) y = (latitudeCompas == S) ? y + 1 : y - 1;
 
     std::stringstream ss;
     ss << "<circle cx=\"" << x;
