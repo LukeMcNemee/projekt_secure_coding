@@ -20,7 +20,7 @@ public:
     void setLongitudeMinutes(unsigned short value);
     void setLongitudeSeconds(unsigned short value);
 
-    std::string toString();
+    std::string toSVG();
 
 private:
     compas latitudeCompas;

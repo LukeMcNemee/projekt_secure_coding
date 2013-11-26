@@ -16,7 +16,7 @@ Coordinate Parser::parseInput(std::string line){
     }
 
     size_t col = Count(":", line);
-    size_t deg = Count("°", line);
+    size_t deg = Count("�", line);
     size_t aph = Count("\'", line);
     size_t quo = Count("\"", line);
     size_t dot = Count(".", line);
@@ -25,19 +25,19 @@ Coordinate Parser::parseInput(std::string line){
     if(foundLetter == std::string::npos){
         //just numeric
         if(col == 4 && deg == 0 && aph == 0 && quo == 0 && dot == 0){
-            //(-)ddd:mm:ss (-)ddd:mm:ss
+            coordinate = minus_colon_dms(line);
 
         } else if (col == 2 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
-            //(-)ddd:mm.mmmmm (-)ddd:mm.mmmmm
+            coordinate = minus_colon_dm(line);
 
         } else if (col == 0 && deg == 2 && aph == 2 && quo == 2 && dot == 0){
-            //(-)ddd°mm'ss", (-)ddd°mm'ss"
+            coordinate = minus_degree_dms(line);
 
         } else if (col == 0 && deg == 2 && aph == 2 && quo == 0 && dot == 2){
-            //(-)ddd°mm.mmmmm', (-)ddd°mm.mmmmm'
+            coordinate = minus_degree_dm(line);
 
         } else if (col == 0 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
-            //(-)ddd.dddddd, (-)ddd.dddddd
+            coordinate = minus_d(line);
 
         } else {
             throw std::invalid_argument("wrong pattern");
@@ -47,19 +47,19 @@ Coordinate Parser::parseInput(std::string line){
         //letters in front
 
         if(col == 4 && deg == 0 && aph == 0 && quo == 0 && dot == 0){
-            //[NS]ddd:mm:ss.sss [WE]ddd:mm:ss.sss
+            coordinate = compas_colon_dms(line);
 
         } else if (col == 2 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
-            //[NS]ddd:mm.mmmmm [WE]ddd:mm.mmmmm
+            coordinate = compas_colon_dm(line);
 
         } else if (col == 0 && deg == 2 && aph == 2 && quo == 2 && dot == 0){
-            //[NS]ddd°mm'ss" [WE]ddd°mm'ss
+            coordinate = compas_degree_dms(line);
 
         } else if (col == 0 && deg == 2 && aph == 2 && quo == 0 && dot == 2){
-            //[NS]ddd°mm.mmmmm' [WE]ddd°mm.mmmmm'
+            coordinate = compas_degree_dm(line);
 
         } else if (col == 0 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
-            //[NS]ddd.dddddd [WE]ddd.dddddd
+            coordinate = compas_d(line);
 
         } else {
             throw std::invalid_argument("wrong pattern");
@@ -69,19 +69,19 @@ Coordinate Parser::parseInput(std::string line){
         //letters in back
 
         if(col == 4 && deg == 0 && aph == 0 && quo == 0 && dot == 0){
-            //ddd:mm:ss[NS] ddd:mm:ss[WE]
+            coordinate = colon_dms_compas(line);
 
         } else if (col == 2 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
-            //ddd:mm.mmmmm[NS] ddd:mm.mmmmm[WE]
+            coordinate = colon_dm_compas(line);
 
         } else if (col == 0 && deg == 2 && aph == 2 && quo == 2 && dot == 0){
-            //ddd°mm.mmmmm'[NS] ddd°mm.mmmmm'[WE]
+            coordinate = degree_dms_compas(line);
 
         } else if (col == 0 && deg == 2 && aph == 2 && quo == 0 && dot == 2){
-            //ddd°mm.mmmmm'[NS] ddd°mm.mmmmm'[WE]
+            coordinate = degree_dm_compas(line);
 
         } else if (col == 0 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
-            //ddd.dddddd[NS] ddd.dddddd[WE]
+            coordinate = d_compas(line);
 
         } else {
             throw std::invalid_argument("wrong pattern");
@@ -101,3 +101,21 @@ int Parser::Count( const std::string & str, const std::string & obj ) {
     }
     return n;
 }
+
+Coordinate Parser::minus_colon_dms(std::string line) {}
+Coordinate Parser::minus_colon_dm(std::string line) {}
+Coordinate Parser::minus_degree_dms(std::string line) {}
+Coordinate Parser::minus_degree_dm(std::string line) {}
+Coordinate Parser::minus_d(std::string line) {}
+
+Coordinate Parser::compas_colon_dms(std::string line) {}
+Coordinate Parser::compas_colon_dm(std::string line) {}
+Coordinate Parser::compas_degree_dms(std::string line) {}
+Coordinate Parser::compas_degree_dm(std::string line) {}
+Coordinate Parser::compas_d(std::string line) {}
+
+Coordinate Parser::colon_dms_compas(std::string line) {}
+Coordinate Parser::colon_dm_compas(std::string line) {}
+Coordinate Parser::degree_dms_compas(std::string line) {}
+Coordinate Parser::degree_dm_compas(std::string line) {}
+Coordinate Parser::d_compas(std::string line) {}

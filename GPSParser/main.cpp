@@ -6,8 +6,8 @@
 #include <vector>
 #include <stdexcept>
 int main(int argc, char* argv[])
-{    
-    //check argc if there is filepath    
+{
+    //check argc if there is filepath
     bool fileOpen = false;
     std::ifstream file;
     if(argc == 2){
@@ -55,6 +55,25 @@ int main(int argc, char* argv[])
     //print to cout all coordinates in vector by calling to string method
 
     //TODO: foreach cooordinates toString / toSVG ...
+
+    std::ofstream svgFile;
+    svgFile.open("map.svg", std::fstream::out);
+    if (!(svgFile.is_open()))
+        {
+            std::cerr << "Cannot open file map.svg for writing." << std::endl;
+            return 1;
+        }
+
+    svgFile << "<!DOCTYPE html><html><body><svg xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">" << std::endl;
+    svgFile << "<line x1=\"360\" y1=\"0\" x2=\"360\" y2=\"360\" style=\"stroke:black;stroke-width:1\" />" << std::endl;
+    svgFile << "<line x1=\"0\" y1=\"180\" x2=\"720\" y2=\"180\" style=\"stroke:black;stroke-width:1\" />" << std::endl;
+
+    for(std::vector<Coordinate>::iterator it = coordinates.begin(); it != coordinates.end(); ++it) {
+        svgFile << it -> toSVG();
+    }
+
+    svgFile << "</svg></body></html>";
+    svgFile.close();
 
 
     if(fileOpen){
