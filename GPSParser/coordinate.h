@@ -10,12 +10,12 @@ class Coordinate
 public:
     Coordinate();
 
-    void setLatitudeCompas(compas value);
+    void setLatitudeCompas(char value);
     void setLatitudeDegrees(unsigned short value);
     void setLatitudeMinutes(unsigned short value);
     void setLatitudeSeconds(unsigned short value);
 
-    void setLongitudeCompas(compas value);
+    void setLongitudeCompas(char value);
     void setLongitudeDegrees(unsigned short value);
     void setLongitudeMinutes(unsigned short value);
     void setLongitudeSeconds(unsigned short value);
@@ -23,12 +23,12 @@ public:
     std::string toSVG();
 
 private:
-    compas latitudeCompas;
+    char latitudeCompas;
     unsigned short latitudeDegrees;
     unsigned short latitudeMinutes;
     unsigned short latitudeSeconds;
 
-    compas longitudeCompas;
+    char longitudeCompas;
     unsigned short longitudeDegrees;
     unsigned short longitudeMinutes;
     unsigned short longitudeSeconds;

@@ -45,7 +45,7 @@ private:
 
     /**
      * @brief minus_degree_dms
-     * processes coordinates from the given string input in format (-)ddd°mm'ss", (-)ddd°mm'ss"
+     * processes coordinates from the given string input in format (-)ddd°mm'ss" (-)ddd°mm'ss"
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -53,7 +53,7 @@ private:
 
     /**
      * @brief minus_degree_dm
-     * processes coordinates from the given string input in format (-)ddd°mm.mmmmm', (-)ddd°mm.mmmmm'
+     * processes coordinates from the given string input in format (-)ddd°mm.mmmmm' (-)ddd°mm.mmmmm'
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -61,7 +61,7 @@ private:
 
     /**
      * @brief minus_d
-     * processes coordinates from the given string input in format (-)ddd.dddddd, (-)ddd.dddddd
+     * processes coordinates from the given string input in format (-)ddd.dddddd (-)ddd.dddddd
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
