@@ -18,11 +18,11 @@ ddd.dddddd[NS] ddd.dddddd[WE]
 <br/>
 (-)ddd:mm.mmmmm (-)ddd:mm.mmmmm
 <br/>
-(-)ddd°mm'ss", (-)ddd°mm'ss"
+(-)ddd°mm'ss" (-)ddd°mm'ss"
 <br/>
-(-)ddd°mm.mmmmm', (-)ddd°mm.mmmmm'
+(-)ddd°mm.mmmmm' (-)ddd°mm.mmmmm'
 <br/>
-(-)ddd.dddddd, (-)ddd.dddddd
+(-)ddd.dddddd (-)ddd.dddddd
 
 
 [NS]ddd:mm:ss.sss [WE]ddd:mm:ss.sss
