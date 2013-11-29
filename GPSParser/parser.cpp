@@ -97,7 +97,7 @@ int Parser::Count( const std::string & str, const std::string & obj ) {
     int n = 0;
     std::string ::size_type pos = 0;
     while( (pos = obj.find( str, pos ))
-                 != std::string::npos ) {
+           != std::string::npos ) {
         n++;
         pos += str.size();
     }
@@ -121,92 +121,92 @@ Coordinate Parser::minus_colon_dms(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_sec) state = space;
-                    else if(state == lon_sec) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_sec) state = space;
+            else if(state == lon_sec) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case '-' :
-                    if(state == start) {
-                        compas_lat = 'S';
-                        state = lat_minus;
-                    }
-                    else if(state == space) {
-                        compas_lon = 'W';
-                        state = lon_minus;
-                    }
-                    else throw std::invalid_argument("Wrong '-' character.");
-                    break;
-
-                case ':' :
-                    if(state == lat_deg) state = lat_colon1;
-                    else if(state == lat_min) state = lat_colon2;
-                    else if(state == lon_deg) state = lon_colon1;
-                    else if(state == lon_min) state = lon_colon2;
-                    else throw std::invalid_argument("Wrong ':' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == start || state == lat_minus || state == lat_deg) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_deg;
-                    }
-                    else if(state == lat_colon1 || state == lat_min) {
-                        if(min_lat.size() >= 2) throw std::invalid_argument("Latitude minutes too long.");
-                        min_lat += c;
-                        state = lat_min;
-                    }
-                    else if(state == lat_colon2 || state == lat_sec) {
-                        if(sec_lat.size() >= 2) throw std::invalid_argument("Latitude seconds too long.");
-                        sec_lat += c;
-                        state = lat_sec;
-                    }
-                    else if(state == space || state == lon_minus || state == lon_deg) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_deg;
-                    }
-                    else if(state == lon_colon1 || state == lon_min) {
-                        if(min_lon.size() >= 2) throw std::invalid_argument("Longitude minutes too long.");
-                        min_lon += c;
-                        state = lon_min;
-                    }
-                    else if(state == lon_colon2 || state == lon_sec) {
-                        if(sec_lon.size() >= 2) throw std::invalid_argument("Longitude seconds too long.");
-                        sec_lon += c;
-                        state = lon_sec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_sec && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case '-' :
+            if(state == start) {
+                compas_lat = 'S';
+                state = lat_minus;
             }
+            else if(state == space) {
+                compas_lon = 'W';
+                state = lon_minus;
+            }
+            else throw CharException();
+            break;
+
+        case ':' :
+            if(state == lat_deg) state = lat_colon1;
+            else if(state == lat_min) state = lat_colon2;
+            else if(state == lon_deg) state = lon_colon1;
+            else if(state == lon_min) state = lon_colon2;
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == start || state == lat_minus || state == lat_deg) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_deg;
+            }
+            else if(state == lat_colon1 || state == lat_min) {
+                if(min_lat.size() >= 2) throw CoordinateOverlowException();
+                min_lat += c;
+                state = lat_min;
+            }
+            else if(state == lat_colon2 || state == lat_sec) {
+                if(sec_lat.size() >= 2) throw CoordinateOverlowException();
+                sec_lat += c;
+                state = lat_sec;
+            }
+            else if(state == space || state == lon_minus || state == lon_deg) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_deg;
+            }
+            else if(state == lon_colon1 || state == lon_min) {
+                if(min_lon.size() >= 2) throw CoordinateOverlowException();
+                min_lon += c;
+                state = lon_min;
+            }
+            else if(state == lon_colon2 || state == lon_sec) {
+                if(sec_lon.size() >= 2) throw CoordinateOverlowException();
+                sec_lon += c;
+                state = lon_sec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_sec && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
 
     coordinate.setLatitudeCompas(compas_lat);
-    if(atoi(deg_lat.c_str()) > 90) throw std::invalid_argument("Latitude degrees too big.");
+    if(atoi(deg_lat.c_str()) > 90) throw CoordinateOverlowException();
     coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
-    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw std::invalid_argument("Latitude minutes too big.");
+    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeMinutes(atoi(min_lat.c_str()));
-    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw std::invalid_argument("Latitude seconds too big.");
+    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeSeconds(atoi(sec_lat.c_str()));
 
     coordinate.setLongitudeCompas(compas_lon);
-    if(atoi(deg_lon.c_str()) > 180) throw std::invalid_argument("Longitude degrees too big.");
+    if(atoi(deg_lon.c_str()) > 180) throw CoordinateOverlowException();
     coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
-    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw std::invalid_argument("Longitude minutes too big.");
+    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeMinutes(atoi(min_lon.c_str()));
-    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw std::invalid_argument("Longitude seconds too big.");
+    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeSeconds(atoi(sec_lon.c_str()));
 
     return coordinate;
@@ -227,82 +227,82 @@ Coordinate Parser::minus_colon_dm(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_minnum || state == lat_mindec) state = space;
-                    else if(state == lon_minnum || state == lon_mindec) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_minnum || state == lat_mindec) state = space;
+            else if(state == lon_minnum || state == lon_mindec) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case '-' :
-                    if(state == start) {
-                        compas_lat = 'S';
-                        state = lat_minus;
-                    }
-                    else if(state == space) {
-                        compas_lon = 'W';
-                        state = lon_minus;
-                    }
-                    else throw std::invalid_argument("Wrong '-' character.");
-                    break;
-
-                case ':' :
-                    if(state == lat_deg) state = lat_colon;
-                    else if(state == lon_deg) state = lon_colon;
-                    else throw std::invalid_argument("Wrong ':' character.");
-                    break;
-
-                case '.' :
-                    if(state == lat_minnum) {
-                        min_lat += c;
-                        state = lat_dot;
-                    }
-                    else if(state == lon_minnum) {
-                        min_lon += c;
-                        state = lon_dot;
-                    }
-                    else throw std::invalid_argument("Wrong '.' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == start || state == lat_minus || state == lat_deg) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_deg;
-                    }
-                    else if(state == lat_colon || state == lat_minnum) {
-                        if(min_lat.size() >= 2) throw std::invalid_argument("Latitude minutes too long.");
-                        min_lat += c;
-                        state = lat_minnum;
-                    }
-                    else if(state == lat_dot || state == lat_mindec) {
-                        if(min_lat.size() < 7) min_lat += c;
-                        state = lat_mindec;
-                    }
-                    else if(state == space || state == lon_minus || state == lon_deg) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_deg;
-                    }
-                    else if(state == lon_colon || state == lon_minnum) {
-                        if(min_lon.size() >= 2) throw std::invalid_argument("Longitude minutes too long.");
-                        min_lon += c;
-                        state = lon_minnum;
-                    }
-                    else if(state == lon_dot || state == lon_mindec) {
-                        if(min_lon.size() < 7) min_lon += c;
-                        state = lon_mindec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_minnum && state != lon_mindec && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case '-' :
+            if(state == start) {
+                compas_lat = 'S';
+                state = lat_minus;
             }
+            else if(state == space) {
+                compas_lon = 'W';
+                state = lon_minus;
+            }
+            else throw CharException();
+            break;
+
+        case ':' :
+            if(state == lat_deg) state = lat_colon;
+            else if(state == lon_deg) state = lon_colon;
+            else throw CharException();
+            break;
+
+        case '.' :
+            if(state == lat_minnum) {
+                min_lat += c;
+                state = lat_dot;
+            }
+            else if(state == lon_minnum) {
+                min_lon += c;
+                state = lon_dot;
+            }
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == start || state == lat_minus || state == lat_deg) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_deg;
+            }
+            else if(state == lat_colon || state == lat_minnum) {
+                if(min_lat.size() >= 2) throw CoordinateOverlowException();
+                min_lat += c;
+                state = lat_minnum;
+            }
+            else if(state == lat_dot || state == lat_mindec) {
+                if(min_lat.size() < 7) min_lat += c;
+                state = lat_mindec;
+            }
+            else if(state == space || state == lon_minus || state == lon_deg) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_deg;
+            }
+            else if(state == lon_colon || state == lon_minnum) {
+                if(min_lon.size() >= 2) throw CoordinateOverlowException();
+                min_lon += c;
+                state = lon_minnum;
+            }
+            else if(state == lon_dot || state == lon_mindec) {
+                if(min_lon.size() < 7) min_lon += c;
+                state = lon_mindec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_minnum && state != lon_mindec && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
@@ -339,66 +339,66 @@ Coordinate Parser::minus_colon_d(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_degnum || state == lat_degdec) state = space;
-                    else if(state == lon_degnum || state == lon_degdec) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_degnum || state == lat_degdec) state = space;
+            else if(state == lon_degnum || state == lon_degdec) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case '-' :
-                    if(state == start) {
-                        compas_lat = 'S';
-                        state = lat_minus;
-                    }
-                    else if(state == space) {
-                        compas_lon = 'W';
-                        state = lon_minus;
-                    }
-                    else throw std::invalid_argument("Wrong '-' character.");
-                    break;
-
-                case '.' :
-                    if(state == lat_degnum) {
-                        deg_lat += c;
-                        state = lat_dot;
-                    }
-                    else if(state == lon_degnum) {
-                        deg_lon += c;
-                        state = lon_dot;
-                    }
-                    else throw std::invalid_argument("Wrong '.' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == start || state == lat_minus || state == lat_degnum) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_degnum;
-                    }
-                    else if(state == lat_dot || state == lat_degdec) {
-                        if(deg_lat.size() < 20) deg_lat += c;
-                        state = lat_degdec;
-                    }
-                    else if(state == space || state == lon_minus || state == lon_degnum) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_degnum;
-                    }
-                    else if(state == lon_dot || state == lon_degdec) {
-                        if(deg_lon.size() < 21) deg_lon += c;
-                        state = lon_degdec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_degnum && state != lon_degdec && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case '-' :
+            if(state == start) {
+                compas_lat = 'S';
+                state = lat_minus;
             }
+            else if(state == space) {
+                compas_lon = 'W';
+                state = lon_minus;
+            }
+            else throw CharException();
+            break;
+
+        case '.' :
+            if(state == lat_degnum) {
+                deg_lat += c;
+                state = lat_dot;
+            }
+            else if(state == lon_degnum) {
+                deg_lon += c;
+                state = lon_dot;
+            }
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == start || state == lat_minus || state == lat_degnum) {
+                if(deg_lat.size() >= 2) throw CoordinateIdentifierException();
+                deg_lat += c;
+                state = lat_degnum;
+            }
+            else if(state == lat_dot || state == lat_degdec) {
+                if(deg_lat.size() < 20) deg_lat += c;
+                state = lat_degdec;
+            }
+            else if(state == space || state == lon_minus || state == lon_degnum) {
+                if(deg_lon.size() >= 3) throw CoordinateIdentifierException();
+                deg_lon += c;
+                state = lon_degnum;
+            }
+            else if(state == lon_dot || state == lon_degdec) {
+                if(deg_lon.size() < 21) deg_lon += c;
+                state = lon_degdec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_degnum && state != lon_degdec && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
@@ -445,96 +445,96 @@ Coordinate Parser::compas_colon_dms(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_sec) state = space;
-                    else if(state == lon_sec) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_sec) state = space;
+            else if(state == lon_sec) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case 'N' : case 'S' :
-                    if(state == start) {
-                        compas_lat = c;
-                        state = lat_compas;
-                    }
-                    else throw std::invalid_argument("Wrong latitude compas.");
-                    break;
-
-                case 'E' : case 'W' :
-                    if(state == space) {
-                        compas_lon = c;
-                        state = lon_compas;
-                    }
-                    else throw std::invalid_argument("Wrong longitude compas.");
-                    break;
-
-                case ':' :
-                    if(state == lat_deg) state = lat_colon1;
-                    else if(state == lat_min) state = lat_colon2;
-                    else if(state == lon_deg) state = lon_colon1;
-                    else if(state == lon_min) state = lon_colon2;
-                    else throw std::invalid_argument("Wrong ':' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == lat_compas || state == lat_deg) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_deg;
-                    }
-                    else if(state == lat_colon1 || state == lat_min) {
-                        if(min_lat.size() >= 2) throw std::invalid_argument("Latitude minutes too long.");
-                        min_lat += c;
-                        state = lat_min;
-                    }
-                    else if(state == lat_colon2 || state == lat_sec) {
-                        if(sec_lat.size() >= 2) throw std::invalid_argument("Latitude seconds too long.");
-                        sec_lat += c;
-                        state = lat_sec;
-                    }
-                    else if(state == lon_compas || state == lon_deg) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_deg;
-                    }
-                    else if(state == lon_colon1 || state == lon_min) {
-                        if(min_lon.size() >= 2) throw std::invalid_argument("Longitude minutes too long.");
-                        min_lon += c;
-                        state = lon_min;
-                    }
-                    else if(state == lon_colon2 || state == lon_sec) {
-                        if(sec_lon.size() >= 2) throw std::invalid_argument("Longitude seconds too long.");
-                        sec_lon += c;
-                        state = lon_sec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_sec && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case 'N' : case 'S' :
+            if(state == start) {
+                compas_lat = c;
+                state = lat_compas;
             }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case 'E' : case 'W' :
+            if(state == space) {
+                compas_lon = c;
+                state = lon_compas;
+            }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case ':' :
+            if(state == lat_deg) state = lat_colon1;
+            else if(state == lat_min) state = lat_colon2;
+            else if(state == lon_deg) state = lon_colon1;
+            else if(state == lon_min) state = lon_colon2;
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == lat_compas || state == lat_deg) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_deg;
+            }
+            else if(state == lat_colon1 || state == lat_min) {
+                if(min_lat.size() >= 2) throw CoordinateOverlowException();
+                min_lat += c;
+                state = lat_min;
+            }
+            else if(state == lat_colon2 || state == lat_sec) {
+                if(sec_lat.size() >= 2) throw CoordinateOverlowException();
+                sec_lat += c;
+                state = lat_sec;
+            }
+            else if(state == lon_compas || state == lon_deg) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_deg;
+            }
+            else if(state == lon_colon1 || state == lon_min) {
+                if(min_lon.size() >= 2) throw CoordinateOverlowException();
+                min_lon += c;
+                state = lon_min;
+            }
+            else if(state == lon_colon2 || state == lon_sec) {
+                if(sec_lon.size() >= 2) throw CoordinateOverlowException();
+                sec_lon += c;
+                state = lon_sec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_sec && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
 
     coordinate.setLatitudeCompas(compas_lat);
-    if(atoi(deg_lat.c_str()) > 90) throw std::invalid_argument("Latitude degrees too big.");
+    if(atoi(deg_lat.c_str()) > 90) throw CoordinateOverlowException();
     coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
-    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw std::invalid_argument("Latitude minutes too big.");
+    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeMinutes(atoi(min_lat.c_str()));
-    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw std::invalid_argument("Latitude seconds too big.");
+    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeSeconds(atoi(sec_lat.c_str()));
 
     coordinate.setLongitudeCompas(compas_lon);
-    if(atoi(deg_lon.c_str()) > 180) throw std::invalid_argument("Longitude degrees too big.");
+    if(atoi(deg_lon.c_str()) > 180) throw CoordinateOverlowException();
     coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
-    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw std::invalid_argument("Longitude minutes too big.");
+    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeMinutes(atoi(min_lon.c_str()));
-    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw std::invalid_argument("Longitude seconds too big.");
+    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeSeconds(atoi(sec_lon.c_str()));
 
     return coordinate;
@@ -555,86 +555,86 @@ Coordinate Parser::compas_colon_dm(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_minnum || state == lat_mindec) state = space;
-                    else if(state == lon_minnum || state == lon_mindec) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_minnum || state == lat_mindec) state = space;
+            else if(state == lon_minnum || state == lon_mindec) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case 'N' : case 'S' :
-                    if(state == start) {
-                        compas_lat = c;
-                        state = lat_compas;
-                    }
-                    else throw std::invalid_argument("Wrong latitude compas.");
-                    break;
-
-                case 'E' : case 'W' :
-                    if(state == space) {
-                        compas_lon = c;
-                        state = lon_compas;
-                    }
-                    else throw std::invalid_argument("Wrong longitude compas.");
-                    break;
-
-                case ':' :
-                    if(state == lat_deg) state = lat_colon;
-                    else if(state == lon_deg) state = lon_colon;
-                    else throw std::invalid_argument("Wrong ':' character.");
-                    break;
-
-                case '.' :
-                    if(state == lat_minnum) {
-                        min_lat += c;
-                        state = lat_dot;
-                    }
-                    else if(state == lon_minnum) {
-                        min_lon += c;
-                        state = lon_dot;
-                    }
-                    else throw std::invalid_argument("Wrong '.' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == lat_compas || state == lat_deg) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_deg;
-                    }
-                    else if(state == lat_colon || state == lat_minnum) {
-                        if(min_lat.size() >= 2) throw std::invalid_argument("Latitude minutes too long.");
-                        min_lat += c;
-                        state = lat_minnum;
-                    }
-                    else if(state == lat_dot || state == lat_mindec) {
-                        if(min_lat.size() < 7) min_lat += c;
-                        state = lat_mindec;
-                    }
-                    else if(state == lon_compas || state == lon_deg) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_deg;
-                    }
-                    else if(state == lon_colon || state == lon_minnum) {
-                        if(min_lon.size() >= 2) throw std::invalid_argument("Longitude minutes too long.");
-                        min_lon += c;
-                        state = lon_minnum;
-                    }
-                    else if(state == lon_dot || state == lon_mindec) {
-                        if(min_lon.size() < 7) min_lon += c;
-                        state = lon_mindec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_minnum && state != lon_mindec && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case 'N' : case 'S' :
+            if(state == start) {
+                compas_lat = c;
+                state = lat_compas;
             }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case 'E' : case 'W' :
+            if(state == space) {
+                compas_lon = c;
+                state = lon_compas;
+            }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case ':' :
+            if(state == lat_deg) state = lat_colon;
+            else if(state == lon_deg) state = lon_colon;
+            else throw CharException();
+            break;
+
+        case '.' :
+            if(state == lat_minnum) {
+                min_lat += c;
+                state = lat_dot;
+            }
+            else if(state == lon_minnum) {
+                min_lon += c;
+                state = lon_dot;
+            }
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == lat_compas || state == lat_deg) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_deg;
+            }
+            else if(state == lat_colon || state == lat_minnum) {
+                if(min_lat.size() >= 2) throw CoordinateOverlowException();
+                min_lat += c;
+                state = lat_minnum;
+            }
+            else if(state == lat_dot || state == lat_mindec) {
+                if(min_lat.size() < 7) min_lat += c;
+                state = lat_mindec;
+            }
+            else if(state == lon_compas || state == lon_deg) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_deg;
+            }
+            else if(state == lon_colon || state == lon_minnum) {
+                if(min_lon.size() >= 2) throw CoordinateOverlowException();
+                min_lon += c;
+                state = lon_minnum;
+            }
+            else if(state == lon_dot || state == lon_mindec) {
+                if(min_lon.size() < 7) min_lon += c;
+                state = lon_mindec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_minnum && state != lon_mindec && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
@@ -671,70 +671,70 @@ Coordinate Parser::compas_colon_d(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_degnum || state == lat_degdec) state = space;
-                    else if(state == lon_degnum || state == lon_degdec) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_degnum || state == lat_degdec) state = space;
+            else if(state == lon_degnum || state == lon_degdec) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case 'N' : case 'S' :
-                    if(state == start) {
-                        compas_lat = c;
-                        state = lat_compas;
-                    }
-                    else throw std::invalid_argument("Wrong latitude compas.");
-                    break;
-
-                case 'E' : case 'W' :
-                    if(state == space) {
-                        compas_lon = c;
-                        state = lon_compas;
-                    }
-                    else throw std::invalid_argument("Wrong longitude compas.");
-                    break;
-
-                case '.' :
-                    if(state == lat_degnum) {
-                        deg_lat += c;
-                        state = lat_dot;
-                    }
-                    else if(state == lon_degnum) {
-                        deg_lon += c;
-                        state = lon_dot;
-                    }
-                    else throw std::invalid_argument("Wrong '.' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == lat_compas || state == lat_degnum) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_degnum;
-                    }
-                    else if(state == lat_dot || state == lat_degdec) {
-                        if(deg_lat.size() < 20) deg_lat += c;
-                        state = lat_degdec;
-                    }
-                    else if(state == lon_compas || state == lon_degnum) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_degnum;
-                    }
-                    else if(state == lon_dot || state == lon_degdec) {
-                        if(deg_lon.size() < 21) deg_lon += c;
-                        state = lon_degdec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_degnum && state != lon_degdec && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case 'N' : case 'S' :
+            if(state == start) {
+                compas_lat = c;
+                state = lat_compas;
             }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case 'E' : case 'W' :
+            if(state == space) {
+                compas_lon = c;
+                state = lon_compas;
+            }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case '.' :
+            if(state == lat_degnum) {
+                deg_lat += c;
+                state = lat_dot;
+            }
+            else if(state == lon_degnum) {
+                deg_lon += c;
+                state = lon_dot;
+            }
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == lat_compas || state == lat_degnum) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_degnum;
+            }
+            else if(state == lat_dot || state == lat_degdec) {
+                if(deg_lat.size() < 20) deg_lat += c;
+                state = lat_degdec;
+            }
+            else if(state == lon_compas || state == lon_degnum) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_degnum;
+            }
+            else if(state == lon_dot || state == lon_degdec) {
+                if(deg_lon.size() < 21) deg_lon += c;
+                state = lon_degdec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_degnum && state != lon_degdec && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
@@ -781,96 +781,96 @@ Coordinate Parser::colon_dms_compas(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_compas) state = space;
-                    else if(state == lon_compas) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_compas) state = space;
+            else if(state == lon_compas) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case 'N' : case 'S' :
-                    if(state == lat_sec) {
-                        compas_lat = c;
-                        state = lat_compas;
-                    }
-                    else throw std::invalid_argument("Wrong latitude compas.");
-                    break;
-
-                case 'E' : case 'W' :
-                    if(state == lon_sec) {
-                        compas_lon = c;
-                        state = lon_compas;
-                    }
-                    else throw std::invalid_argument("Wrong longitude compas.");
-                    break;
-
-                case ':' :
-                    if(state == lat_deg) state = lat_colon1;
-                    else if(state == lat_min) state = lat_colon2;
-                    else if(state == lon_deg) state = lon_colon1;
-                    else if(state == lon_min) state = lon_colon2;
-                    else throw std::invalid_argument("Wrong ':' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == start || state == lat_deg) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_deg;
-                    }
-                    else if(state == lat_colon1 || state == lat_min) {
-                        if(min_lat.size() >= 2) throw std::invalid_argument("Latitude minutes too long.");
-                        min_lat += c;
-                        state = lat_min;
-                    }
-                    else if(state == lat_colon2 || state == lat_sec) {
-                        if(sec_lat.size() >= 2) throw std::invalid_argument("Latitude seconds too long.");
-                        sec_lat += c;
-                        state = lat_sec;
-                    }
-                    else if(state == space || state == lon_deg) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_deg;
-                    }
-                    else if(state == lon_colon1 || state == lon_min) {
-                        if(min_lon.size() >= 2) throw std::invalid_argument("Longitude minutes too long.");
-                        min_lon += c;
-                        state = lon_min;
-                    }
-                    else if(state == lon_colon2 || state == lon_sec) {
-                        if(sec_lon.size() >= 2) throw std::invalid_argument("Longitude seconds too long.");
-                        sec_lon += c;
-                        state = lon_sec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_compas && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case 'N' : case 'S' :
+            if(state == lat_sec) {
+                compas_lat = c;
+                state = lat_compas;
             }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case 'E' : case 'W' :
+            if(state == lon_sec) {
+                compas_lon = c;
+                state = lon_compas;
+            }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case ':' :
+            if(state == lat_deg) state = lat_colon1;
+            else if(state == lat_min) state = lat_colon2;
+            else if(state == lon_deg) state = lon_colon1;
+            else if(state == lon_min) state = lon_colon2;
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == start || state == lat_deg) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_deg;
+            }
+            else if(state == lat_colon1 || state == lat_min) {
+                if(min_lat.size() >= 2) throw CoordinateOverlowException();
+                min_lat += c;
+                state = lat_min;
+            }
+            else if(state == lat_colon2 || state == lat_sec) {
+                if(sec_lat.size() >= 2) throw CoordinateOverlowException();
+                sec_lat += c;
+                state = lat_sec;
+            }
+            else if(state == space || state == lon_deg) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_deg;
+            }
+            else if(state == lon_colon1 || state == lon_min) {
+                if(min_lon.size() >= 2) throw CoordinateOverlowException();
+                min_lon += c;
+                state = lon_min;
+            }
+            else if(state == lon_colon2 || state == lon_sec) {
+                if(sec_lon.size() >= 2) throw CoordinateOverlowException();
+                sec_lon += c;
+                state = lon_sec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_compas && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
 
     coordinate.setLatitudeCompas(compas_lat);
-    if(atoi(deg_lat.c_str()) > 90) throw std::invalid_argument("Latitude degrees too big.");
+    if(atoi(deg_lat.c_str()) > 90) throw CoordinateOverlowException();
     coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
-    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw std::invalid_argument("Latitude minutes too big.");
+    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeMinutes(atoi(min_lat.c_str()));
-    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw std::invalid_argument("Latitude seconds too big.");
+    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeSeconds(atoi(sec_lat.c_str()));
 
     coordinate.setLongitudeCompas(compas_lon);
-    if(atoi(deg_lon.c_str()) > 180) throw std::invalid_argument("Longitude degrees too big.");
+    if(atoi(deg_lon.c_str()) > 180) throw CoordinateOverlowException();
     coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
-    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw std::invalid_argument("Longitude minutes too big.");
+    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeMinutes(atoi(min_lon.c_str()));
-    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw std::invalid_argument("Longitude seconds too big.");
+    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeSeconds(atoi(sec_lon.c_str()));
 
     return coordinate;
@@ -891,86 +891,86 @@ Coordinate Parser::colon_dm_compas(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_compas) state = space;
-                    else if(state == lon_compas) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_compas) state = space;
+            else if(state == lon_compas) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case 'N' : case 'S' :
-                    if(state == lat_minnum || state == lat_mindec) {
-                        compas_lat = c;
-                        state = lat_compas;
-                    }
-                    else throw std::invalid_argument("Wrong latitude compas.");
-                    break;
-
-                case 'E' : case 'W' :
-                    if(state == lon_minnum || state == lon_mindec) {
-                        compas_lon = c;
-                        state = lon_compas;
-                    }
-                    else throw std::invalid_argument("Wrong longitude compas.");
-                    break;
-
-                case ':' :
-                    if(state == lat_deg) state = lat_colon;
-                    else if(state == lon_deg) state = lon_colon;
-                    else throw std::invalid_argument("Wrong ':' character.");
-                    break;
-
-                case '.' :
-                    if(state == lat_minnum) {
-                        min_lat += c;
-                        state = lat_dot;
-                    }
-                    else if(state == lon_minnum) {
-                        min_lon += c;
-                        state = lon_dot;
-                    }
-                    else throw std::invalid_argument("Wrong '.' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == start || state == lat_deg) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_deg;
-                    }
-                    else if(state == lat_colon || state == lat_minnum) {
-                        if(min_lat.size() >= 2) throw std::invalid_argument("Latitude minutes too long.");
-                        min_lat += c;
-                        state = lat_minnum;
-                    }
-                    else if(state == lat_dot || state == lat_mindec) {
-                        if(min_lat.size() < 7) min_lat += c;
-                        state = lat_mindec;
-                    }
-                    else if(state == space || state == lon_deg) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_deg;
-                    }
-                    else if(state == lon_colon || state == lon_minnum) {
-                        if(min_lon.size() >= 2) throw std::invalid_argument("Longitude minutes too long.");
-                        min_lon += c;
-                        state = lon_minnum;
-                    }
-                    else if(state == lon_dot || state == lon_mindec) {
-                        if(min_lon.size() < 7) min_lon += c;
-                        state = lon_mindec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_compas && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case 'N' : case 'S' :
+            if(state == lat_minnum || state == lat_mindec) {
+                compas_lat = c;
+                state = lat_compas;
             }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case 'E' : case 'W' :
+            if(state == lon_minnum || state == lon_mindec) {
+                compas_lon = c;
+                state = lon_compas;
+            }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case ':' :
+            if(state == lat_deg) state = lat_colon;
+            else if(state == lon_deg) state = lon_colon;
+            else throw CharException();
+            break;
+
+        case '.' :
+            if(state == lat_minnum) {
+                min_lat += c;
+                state = lat_dot;
+            }
+            else if(state == lon_minnum) {
+                min_lon += c;
+                state = lon_dot;
+            }
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == start || state == lat_deg) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_deg;
+            }
+            else if(state == lat_colon || state == lat_minnum) {
+                if(min_lat.size() >= 2) throw CoordinateOverlowException();
+                min_lat += c;
+                state = lat_minnum;
+            }
+            else if(state == lat_dot || state == lat_mindec) {
+                if(min_lat.size() < 7) min_lat += c;
+                state = lat_mindec;
+            }
+            else if(state == space || state == lon_deg) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_deg;
+            }
+            else if(state == lon_colon || state == lon_minnum) {
+                if(min_lon.size() >= 2) throw CoordinateOverlowException();
+                min_lon += c;
+                state = lon_minnum;
+            }
+            else if(state == lon_dot || state == lon_mindec) {
+                if(min_lon.size() < 7) min_lon += c;
+                state = lon_mindec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_compas && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
@@ -1007,70 +1007,70 @@ Coordinate Parser::colon_d_compas(std::string line) {
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
         char c = line[iterator];
-            switch (c) {
-                case ' ':
-                    if(state == lat_compas) state = space;
-                    else if(state == lon_compas) state = done;
-                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
-                    break;
+        switch (c) {
+        case ' ':
+            if(state == lat_compas) state = space;
+            else if(state == lon_compas) state = done;
+            else if(state != start && state != space && state != done) throw WhitespaceException();
+            break;
 
-                case 'N' : case 'S' :
-                    if(state == lat_degnum || state == lat_degdec) {
-                        compas_lat = c;
-                        state = lat_compas;
-                    }
-                    else throw std::invalid_argument("Wrong latitude compas.");
-                    break;
-
-                case 'E' : case 'W' :
-                    if(state == lon_degnum || state == lon_degdec)  {
-                        compas_lon = c;
-                        state = lon_compas;
-                    }
-                    else throw std::invalid_argument("Wrong longitude compas.");
-                    break;
-
-                case '.' :
-                    if(state == lat_degnum) {
-                        deg_lat += c;
-                        state = lat_dot;
-                    }
-                    else if(state == lon_degnum) {
-                        deg_lon += c;
-                        state = lon_dot;
-                    }
-                    else throw std::invalid_argument("Wrong '.' character.");
-                    break;
-
-                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
-                    if(state == start || state == lat_degnum) {
-                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
-                        deg_lat += c;
-                        state = lat_degnum;
-                    }
-                    else if(state == lat_dot || state == lat_degdec) {
-                        if(deg_lat.size() < 20) deg_lat += c;
-                        state = lat_degdec;
-                    }
-                    else if(state == space || state == lon_degnum) {
-                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
-                        deg_lon += c;
-                        state = lon_degnum;
-                    }
-                    else if(state == lon_dot || state == lon_degdec) {
-                        if(deg_lon.size() < 21) deg_lon += c;
-                        state = lon_degdec;
-                    }
-                    else throw std::invalid_argument("Wrong number.");
-                    break;
-
-                case '\0':
-                    if(state != lon_compas && state != done) throw std::invalid_argument("Input too short.");
-                    break;
-
-                default: throw std::invalid_argument("Character not allowed.");
-                    break;
+        case 'N' : case 'S' :
+            if(state == lat_degnum || state == lat_degdec) {
+                compas_lat = c;
+                state = lat_compas;
             }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case 'E' : case 'W' :
+            if(state == lon_degnum || state == lon_degdec)  {
+                compas_lon = c;
+                state = lon_compas;
+            }
+            else throw CoordinateIdentifierException();
+            break;
+
+        case '.' :
+            if(state == lat_degnum) {
+                deg_lat += c;
+                state = lat_dot;
+            }
+            else if(state == lon_degnum) {
+                deg_lon += c;
+                state = lon_dot;
+            }
+            else throw CharException();
+            break;
+
+        case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+            if(state == start || state == lat_degnum) {
+                if(deg_lat.size() >= 2) throw CoordinateOverlowException();
+                deg_lat += c;
+                state = lat_degnum;
+            }
+            else if(state == lat_dot || state == lat_degdec) {
+                if(deg_lat.size() < 20) deg_lat += c;
+                state = lat_degdec;
+            }
+            else if(state == space || state == lon_degnum) {
+                if(deg_lon.size() >= 3) throw CoordinateOverlowException();
+                deg_lon += c;
+                state = lon_degnum;
+            }
+            else if(state == lon_dot || state == lon_degdec) {
+                if(deg_lon.size() < 21) deg_lon += c;
+                state = lon_degdec;
+            }
+            else throw CharException();
+            break;
+
+        case '\0':
+            if(state != lon_compas && state != done) throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
     }
 
     Coordinate coordinate;
