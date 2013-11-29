@@ -44,6 +44,14 @@ private:
     Coordinate minus_colon_dm(std::string line);
 
     /**
+     * @brief minus_colon_d
+     * processes coordinates from the given string input in format (-)ddd.dddddd (-)ddd.dddddd
+     * @param line string input with coordinates
+     * @return coordinates parsed to coordinate class
+     */
+    Coordinate minus_colon_d(std::string line);
+
+    /**
      * @brief minus_degree_dms
      * processes coordinates from the given string input in format (-)ddd°mm'ss" (-)ddd°mm'ss"
      * @param line string input with coordinates
@@ -60,12 +68,12 @@ private:
     Coordinate minus_degree_dm(std::string line);
 
     /**
-     * @brief minus_d
-     * processes coordinates from the given string input in format (-)ddd.dddddd (-)ddd.dddddd
+     * @brief minus_degree_d
+     * processes coordinates from the given string input in format (-)ddd.dddddd° (-)ddd.dddddd°
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
-    Coordinate minus_d(std::string line);
+    Coordinate minus_degree_d(std::string line);
 
     /**
      * @brief compas_colon_dms
@@ -84,6 +92,14 @@ private:
     Coordinate compas_colon_dm(std::string line);
 
     /**
+     * @brief compas_colon_d
+     * processes coordinates from the given string input in format [NS]ddd.dddddd [WE]ddd.dddddd
+     * @param line string input with coordinates
+     * @return coordinates parsed to coordinate class
+     */
+    Coordinate compas_colon_d(std::string line);
+
+    /**
      * @brief compas_degree_dms
      * processes coordinates from the given string input in format [NS]ddd°mm'ss" [WE]ddd°mm'ss"
      * @param line string input with coordinates
@@ -100,12 +116,12 @@ private:
     Coordinate compas_degree_dm(std::string line);
 
     /**
-     * @brief compas_d
-     * processes coordinates from the given string input in format [NS]ddd.dddddd [WE]ddd.dddddd
+     * @brief compas_degree_d
+     * processes coordinates from the given string input in format [NS]ddd.dddddd° [WE]ddd.dddddd°
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
-    Coordinate compas_d(std::string line);
+    Coordinate compas_degree_d(std::string line);
 
     /**
      * @brief colon_dms_compas
@@ -124,6 +140,14 @@ private:
     Coordinate colon_dm_compas(std::string line);
 
     /**
+     * @brief colon_d_compas
+     * processes coordinates from the given string input in format ddd.dddddd[NS] ddd.dddddd[WE]
+     * @param line string input with coordinates
+     * @return coordinates parsed to coordinate class
+     */
+    Coordinate colon_d_compas(std::string line);
+
+    /**
      * @brief degree_dms_compas
      * processes coordinates from the given string input in format ddd°mm'ss"[NS] ddd°mm'ss"[WE]
      * @param line string input with coordinates
@@ -140,12 +164,12 @@ private:
     Coordinate degree_dm_compas(std::string line);
 
     /**
-     * @brief d_compas
-     * processes coordinates from the given string input in format ddd.dddddd[NS] ddd.dddddd[WE]
+     * @brief degree_d_compas
+     * processes coordinates from the given string input in format ddd.dddddd°[NS] ddd.dddddd°[WE]
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
-    Coordinate d_compas(std::string line);
+    Coordinate degree_d_compas(std::string line);
 
 };
 
