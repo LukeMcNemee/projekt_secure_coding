@@ -5,9 +5,11 @@ CONFIG -= qt
 
 SOURCES += main.cpp \
     coordinate.cpp \
-    parser.cpp
+    parser.cpp \
+    exceptions.cpp
 
 HEADERS += \
     coordinate.h \
-    parser.h
+    parser.h \
+    exceptions.h
 

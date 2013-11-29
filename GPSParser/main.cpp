@@ -39,13 +39,20 @@ int main(int argc, char* argv[])
 
     //process lines
     while(line != "quit"){
+
         try{
-            coordinates.push_back(parser.parseInput(line));
+            if(line.find_first_not_of(' ') != std::string::npos){
+                coordinates.push_back(parser.parseInput(line));
+            }
         } catch (const std::invalid_argument& e){
-            std::cerr << "wrong format of input " << e.what() << std::endl;
+            std::cerr << "Exception occured on line : " << line << "  "
+                      << e.what() << std::endl;
         }
 
         if(fileOpen){
+            if(!(file.good())){
+                break;
+            }
             std::getline(file, line);
         } else {
             std::getline(std::cin, line);

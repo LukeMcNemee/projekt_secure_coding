@@ -14,7 +14,7 @@ Coordinate Parser::parseInput(std::string line){
 
     //if no numbers found in input
     if(foundNumber == std::string::npos){
-        throw std::invalid_argument("no numbers found");
+        throw NumberException();
     }
 
     size_t col = Count(":", line);
@@ -42,7 +42,7 @@ Coordinate Parser::parseInput(std::string line){
             coordinate = minus_colon_d(line);
 
         } else {
-            throw std::invalid_argument("wrong pattern");
+            throw PatternException();
         }
 
     } else if (foundLetter < foundNumber){
@@ -64,7 +64,7 @@ Coordinate Parser::parseInput(std::string line){
             coordinate = compas_colon_d(line);
 
         } else {
-            throw std::invalid_argument("wrong pattern");
+            throw PatternException();
         }
 
     } else {
@@ -86,7 +86,7 @@ Coordinate Parser::parseInput(std::string line){
             coordinate = colon_d_compas(line);
 
         } else {
-            throw std::invalid_argument("wrong pattern");
+            throw PatternException();
         }
 
     }

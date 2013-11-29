@@ -2,6 +2,7 @@
 #define PARSER_H
 
 #include "coordinate.h"
+#include "exceptions.h"
 
 class Parser
 {
