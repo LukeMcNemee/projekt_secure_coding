@@ -326,7 +326,104 @@ Coordinate Parser::minus_colon_dm(std::string line) {
     return coordinate;
 }
 
-Coordinate Parser::minus_colon_d(std::string line) {}
+Coordinate Parser::minus_colon_d(std::string line) {
+
+    enum states {start, lat_minus, lat_degnum, lat_dot, lat_degdec, space, lon_minus, lon_degnum, lon_dot, lon_degdec, done};
+    states state = start;
+
+    std::string deg_lat = "";
+    char compas_lat = 'N';
+
+    std::string deg_lon = "";
+    char compas_lon = 'E';
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
+        char c = line[iterator];
+            switch (c) {
+                case ' ':
+                    if(state == lat_degnum || state == lat_degdec) state = space;
+                    else if(state == lon_degnum || state == lon_degdec) state = done;
+                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
+                    break;
+
+                case '-' :
+                    if(state == start) {
+                        compas_lat = 'S';
+                        state = lat_minus;
+                    }
+                    else if(state == space) {
+                        compas_lon = 'W';
+                        state = lon_minus;
+                    }
+                    else throw std::invalid_argument("Wrong '-' character.");
+                    break;
+
+                case '.' :
+                    if(state == lat_degnum) {
+                        deg_lat += c;
+                        state = lat_dot;
+                    }
+                    else if(state == lon_degnum) {
+                        deg_lon += c;
+                        state = lon_dot;
+                    }
+                    else throw std::invalid_argument("Wrong '.' character.");
+                    break;
+
+                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                    if(state == start || state == lat_minus || state == lat_degnum) {
+                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
+                        deg_lat += c;
+                        state = lat_degnum;
+                    }
+                    else if(state == lat_dot || state == lat_degdec) {
+                        if(deg_lat.size() < 20) deg_lat += c;
+                        state = lat_degdec;
+                    }
+                    else if(state == space || state == lon_minus || state == lon_degnum) {
+                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
+                        deg_lon += c;
+                        state = lon_degnum;
+                    }
+                    else if(state == lon_dot || state == lon_degdec) {
+                        if(deg_lon.size() < 21) deg_lon += c;
+                        state = lon_degdec;
+                    }
+                    else throw std::invalid_argument("Wrong number.");
+                    break;
+
+                case '\0':
+                    if(state != lon_degnum && state != lon_degdec && state != done) throw std::invalid_argument("Input too short.");
+                    break;
+
+                default: throw std::invalid_argument("Character not allowed.");
+                    break;
+            }
+    }
+
+    Coordinate coordinate;
+
+    double float_degrees_lat = atof(deg_lat.c_str());
+    double float_minutes_lat = (float_degrees_lat - floor(float_degrees_lat)) * 60;
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees((unsigned short) floor(float_degrees_lat));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_degrees_lon = atof(deg_lon.c_str());
+    double float_minutes_lon = (float_degrees_lon - floor(float_degrees_lon)) * 60;
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees((unsigned short) floor(float_degrees_lon));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
+}
+
 Coordinate Parser::minus_degree_dms(std::string line) {}
 Coordinate Parser::minus_degree_dm(std::string line) {}
 Coordinate Parser::minus_degree_d(std::string line) {}
@@ -561,7 +658,108 @@ Coordinate Parser::compas_colon_dm(std::string line) {
     return coordinate;
 }
 
-Coordinate Parser::compas_colon_d(std::string line) {}
+Coordinate Parser::compas_colon_d(std::string line) {
+
+    enum states {start, lat_compas, lat_degnum, lat_dot, lat_degdec, space, lon_compas, lon_degnum, lon_dot, lon_degdec, done};
+    states state = start;
+
+    std::string deg_lat = "";
+    char compas_lat = 'N';
+
+    std::string deg_lon = "";
+    char compas_lon = 'E';
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
+        char c = line[iterator];
+            switch (c) {
+                case ' ':
+                    if(state == lat_degnum || state == lat_degdec) state = space;
+                    else if(state == lon_degnum || state == lon_degdec) state = done;
+                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
+                    break;
+
+                case 'N' : case 'S' :
+                    if(state == start) {
+                        compas_lat = c;
+                        state = lat_compas;
+                    }
+                    else throw std::invalid_argument("Wrong latitude compas.");
+                    break;
+
+                case 'E' : case 'W' :
+                    if(state == space) {
+                        compas_lon = c;
+                        state = lon_compas;
+                    }
+                    else throw std::invalid_argument("Wrong longitude compas.");
+                    break;
+
+                case '.' :
+                    if(state == lat_degnum) {
+                        deg_lat += c;
+                        state = lat_dot;
+                    }
+                    else if(state == lon_degnum) {
+                        deg_lon += c;
+                        state = lon_dot;
+                    }
+                    else throw std::invalid_argument("Wrong '.' character.");
+                    break;
+
+                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                    if(state == lat_compas || state == lat_degnum) {
+                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
+                        deg_lat += c;
+                        state = lat_degnum;
+                    }
+                    else if(state == lat_dot || state == lat_degdec) {
+                        if(deg_lat.size() < 20) deg_lat += c;
+                        state = lat_degdec;
+                    }
+                    else if(state == lon_compas || state == lon_degnum) {
+                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
+                        deg_lon += c;
+                        state = lon_degnum;
+                    }
+                    else if(state == lon_dot || state == lon_degdec) {
+                        if(deg_lon.size() < 21) deg_lon += c;
+                        state = lon_degdec;
+                    }
+                    else throw std::invalid_argument("Wrong number.");
+                    break;
+
+                case '\0':
+                    if(state != lon_degnum && state != lon_degdec && state != done) throw std::invalid_argument("Input too short.");
+                    break;
+
+                default: throw std::invalid_argument("Character not allowed.");
+                    break;
+            }
+    }
+
+    Coordinate coordinate;
+
+    double float_degrees_lat = atof(deg_lat.c_str());
+    double float_minutes_lat = (float_degrees_lat - floor(float_degrees_lat)) * 60;
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees((unsigned short) floor(float_degrees_lat));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_degrees_lon = atof(deg_lon.c_str());
+    double float_minutes_lon = (float_degrees_lon - floor(float_degrees_lon)) * 60;
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees((unsigned short) floor(float_degrees_lon));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
+}
+
 Coordinate Parser::compas_degree_dms(std::string line) {}
 Coordinate Parser::compas_degree_dm(std::string line) {}
 Coordinate Parser::compas_degree_d(std::string line) {}
@@ -796,7 +994,108 @@ Coordinate Parser::colon_dm_compas(std::string line) {
     return coordinate;
 }
 
-Coordinate Parser::colon_d_compas(std::string line) {}
+Coordinate Parser::colon_d_compas(std::string line) {
+
+    enum states {start, lat_degnum, lat_dot, lat_degdec, lat_compas, space, lon_degnum, lon_dot, lon_degdec, lon_compas, done};
+    states state = start;
+
+    std::string deg_lat = "";
+    char compas_lat = 'N';
+
+    std::string deg_lon = "";
+    char compas_lon = 'E';
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator) {
+        char c = line[iterator];
+            switch (c) {
+                case ' ':
+                    if(state == lat_compas) state = space;
+                    else if(state == lon_compas) state = done;
+                    else if(state != start && state != space && state != done) throw std::invalid_argument("Wrong space character.");
+                    break;
+
+                case 'N' : case 'S' :
+                    if(state == lat_degnum || state == lat_degdec) {
+                        compas_lat = c;
+                        state = lat_compas;
+                    }
+                    else throw std::invalid_argument("Wrong latitude compas.");
+                    break;
+
+                case 'E' : case 'W' :
+                    if(state == lon_degnum || state == lon_degdec)  {
+                        compas_lon = c;
+                        state = lon_compas;
+                    }
+                    else throw std::invalid_argument("Wrong longitude compas.");
+                    break;
+
+                case '.' :
+                    if(state == lat_degnum) {
+                        deg_lat += c;
+                        state = lat_dot;
+                    }
+                    else if(state == lon_degnum) {
+                        deg_lon += c;
+                        state = lon_dot;
+                    }
+                    else throw std::invalid_argument("Wrong '.' character.");
+                    break;
+
+                case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+                    if(state == start || state == lat_degnum) {
+                        if(deg_lat.size() >= 2) throw std::invalid_argument("Latitude degrees too long.");
+                        deg_lat += c;
+                        state = lat_degnum;
+                    }
+                    else if(state == lat_dot || state == lat_degdec) {
+                        if(deg_lat.size() < 20) deg_lat += c;
+                        state = lat_degdec;
+                    }
+                    else if(state == space || state == lon_degnum) {
+                        if(deg_lon.size() >= 3) throw std::invalid_argument("Longitude degrees too long.");
+                        deg_lon += c;
+                        state = lon_degnum;
+                    }
+                    else if(state == lon_dot || state == lon_degdec) {
+                        if(deg_lon.size() < 21) deg_lon += c;
+                        state = lon_degdec;
+                    }
+                    else throw std::invalid_argument("Wrong number.");
+                    break;
+
+                case '\0':
+                    if(state != lon_compas && state != done) throw std::invalid_argument("Input too short.");
+                    break;
+
+                default: throw std::invalid_argument("Character not allowed.");
+                    break;
+            }
+    }
+
+    Coordinate coordinate;
+
+    double float_degrees_lat = atof(deg_lat.c_str());
+    double float_minutes_lat = (float_degrees_lat - floor(float_degrees_lat)) * 60;
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees((unsigned short) floor(float_degrees_lat));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_degrees_lon = atof(deg_lon.c_str());
+    double float_minutes_lon = (float_degrees_lon - floor(float_degrees_lon)) * 60;
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees((unsigned short) floor(float_degrees_lon));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
+}
+
 Coordinate Parser::degree_dms_compas(std::string line) {}
 Coordinate Parser::degree_dm_compas(std::string line) {}
 Coordinate Parser::degree_d_compas(std::string line) {}
