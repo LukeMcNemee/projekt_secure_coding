@@ -12,6 +12,8 @@ ddd°mm'ss"[NS] ddd°mm'ss"[WE]
 ddd°mm.mmmmm'[NS] ddd°mm.mmmmm'[WE]
 <br/>
 ddd.dddddd[NS] ddd.dddddd[WE]
+<br/>
+ddd.dddddd°[NS] ddd.dddddd°[WE]
 
 
 (-)ddd:mm:ss (-)ddd:mm:ss
@@ -23,6 +25,8 @@ ddd.dddddd[NS] ddd.dddddd[WE]
 (-)ddd°mm.mmmmm' (-)ddd°mm.mmmmm'
 <br/>
 (-)ddd.dddddd (-)ddd.dddddd
+<br/>
+(-)ddd.dddddd° (-)ddd.dddddd°
 
 
 [NS]ddd:mm:ss.sss [WE]ddd:mm:ss.sss
@@ -34,6 +38,8 @@ ddd.dddddd[NS] ddd.dddddd[WE]
 [NS]ddd°mm.mmmmm' [WE]ddd°mm.mmmmm'
 <br/>
 [NS]ddd.dddddd [WE]ddd.dddddd
+<br/>
+[NS]ddd.dddddd° [WE]ddd.dddddd°
 
 Range of input values:
 * degrees:
