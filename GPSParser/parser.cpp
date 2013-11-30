@@ -41,6 +41,9 @@ Coordinate Parser::parseInput(std::string line){
         } else if (col == 0 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
             coordinate = minus_colon_d(line);
 
+        } else if (col == 0 && deg == 2 && aph == 0 && quo == 0 && dot == 2){
+            //(-)ddd.dddddd° (-)ddd.dddddd°
+
         } else {
             throw PatternException();
         }
@@ -63,6 +66,9 @@ Coordinate Parser::parseInput(std::string line){
         } else if (col == 0 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
             coordinate = compas_colon_d(line);
 
+        } else if (col == 0 && deg == 2 && aph == 0 && quo == 0 && dot == 2){
+            //[NS]ddd.dddddd° [WE]ddd.dddddd°
+
         } else {
             throw PatternException();
         }
@@ -84,6 +90,9 @@ Coordinate Parser::parseInput(std::string line){
 
         } else if (col == 0 && deg == 0 && aph == 0 && quo == 0 && dot == 2){
             coordinate = colon_d_compas(line);
+
+        } else if (col == 0 && deg == 2 && aph == 0 && quo == 0 && dot == 2){
+            //ddd.dddddd°[NS] ddd.dddddd°[WE]
 
         } else {
             throw PatternException();
