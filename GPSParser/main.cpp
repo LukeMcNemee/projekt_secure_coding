@@ -42,6 +42,7 @@ int main(int argc, char* argv[])
 
         try{
             if(line.find_first_not_of(' ') != std::string::npos){
+                line.push_back('\0');
                 coordinates.push_back(parser.parseInput(line));
             }
         } catch (const std::invalid_argument& e){

@@ -16,28 +16,36 @@ Coordinate::Coordinate()
 
 void Coordinate::setLatitudeCompas(char value) {
     latitudeCompas = value;
+    checkOverFlow();
 }
 void Coordinate::setLatitudeDegrees(unsigned short value) {
     latitudeDegrees = value;
+    checkOverFlow();
 }
 void Coordinate::setLatitudeMinutes(unsigned short value) {
     latitudeMinutes = value;
+    checkOverFlow();
 }
 void Coordinate::setLatitudeSeconds(unsigned short value) {
     latitudeSeconds = value;
+    checkOverFlow();
 }
 
 void Coordinate::setLongitudeCompas(char value) {
     longitudeCompas = value;
+    checkOverFlow();
 }
 void Coordinate::setLongitudeDegrees(unsigned short value) {
     longitudeDegrees = value;
+    checkOverFlow();
 }
 void Coordinate::setLongitudeMinutes(unsigned short value) {
     longitudeMinutes = value;
+    checkOverFlow();
 }
 void Coordinate::setLongitudeSeconds(unsigned short value) {
     longitudeSeconds = value;
+    checkOverFlow();
 }
 
 std::string Coordinate::toSVG() {
@@ -60,4 +68,25 @@ std::string Coordinate::toSVG() {
     ss << "</text>" << std::endl;
 
     return ss.str();
+}
+
+void Coordinate::checkOverFlow(){
+    if(latitudeCompas != 'N' && latitudeCompas != 'S'){
+        throw PatternException();
+    }
+    if(longitudeCompas != 'E' && longitudeCompas != 'W'){
+        throw PatternException();
+    }
+    double sumLat = latitudeDegrees;
+    sumLat += latitudeMinutes / 60.0;
+    sumLat += latitudeSeconds / 360.0;
+    if(sumLat > 90){
+        throw CoordinateOverlowException();
+    }
+    double sumLon = longitudeDegrees;
+    sumLon += longitudeMinutes / 60.0;
+    sumLon += longitudeSeconds / 360.0;
+    if (sumLon > 180){
+        throw CoordinateOverlowException();
+    }
 }

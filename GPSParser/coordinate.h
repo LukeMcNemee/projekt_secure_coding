@@ -2,8 +2,8 @@
 #define COORDINATE_H
 
 #include <string>
+#include "exceptions.h"
 
-enum compas {N, S, E, W};
 
 class Coordinate
 {
@@ -32,6 +32,13 @@ private:
     unsigned short longitudeDegrees;
     unsigned short longitudeMinutes;
     unsigned short longitudeSeconds;
+
+    /**
+     * @brief checkOverFlow
+     * check content of coordinate for overflow
+     * in case of overflow throws exception
+     */
+    void checkOverFlow();
 };
 
 #endif // COORDINATE_H
