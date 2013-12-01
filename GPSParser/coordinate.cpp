@@ -70,6 +70,13 @@ std::string Coordinate::toSVG() {
     return ss.str();
 }
 
+std::string Coordinate::toString(){
+    std::stringstream ss;
+    ss << latitudeDegrees << ":" << latitudeMinutes << ":" << latitudeSeconds << latitudeCompas;
+    ss << longitudeDegrees << ":" << longitudeMinutes << ":" << longitudeSeconds << longitudeCompas;
+    return ss.str();
+}
+
 void Coordinate::checkOverFlow(){
     if(latitudeCompas != 'N' && latitudeCompas != 'S'){
         throw PatternException();

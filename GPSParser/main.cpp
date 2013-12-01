@@ -84,6 +84,10 @@ int main(int argc, char* argv[])
     svgFile << "</svg></body></html>";
     svgFile.close();
 
+    std::cout << "coordinates :" << std::endl;
+    for(std::vector<Coordinate>::iterator it = coordinates.begin(); it != coordinates.end(); ++it) {
+        std::cout << it -> toString() << std::endl;
+    }
 
     if(fileOpen){
         file.close();

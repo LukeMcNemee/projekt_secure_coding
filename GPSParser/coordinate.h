@@ -21,6 +21,7 @@ public:
     void setLongitudeSeconds(unsigned short value);
 
     std::string toSVG();
+    std::string toString();
 
 private:
     char latitudeCompas;
