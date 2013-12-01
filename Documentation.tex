@@ -1,0 +1,131 @@
+\documentclass[12pt,titlepage]{article}
+\usepackage[utf8]{inputenc}
+\usepackage{a4wide}
+\usepackage{graphicx}
+\usepackage[british]{babel}
+\usepackage{multicol}
+\title{Project Documentation}
+\author{Bačinská, Koutský, Němec}
+
+
+
+\begin{document}
+\begin{titlepage}
+\begin{center}
+\textsc{\LARGE PA193 Project Documentation}\\[0.6cm]
+\textsc{\Large GPS Parser}\\[1cm]
+
+
+\begin{multicols}{3}
+\Large{Lenka Bačinská}\\[1cm]
+
+
+\columnbreak
+\Large{Ondřej Koutský}\\[1cm]
+
+\columnbreak
+\Large{Lukáš Němec}\\[1cm]
+\end{multicols}
+\bigskip
+\bigskip
+
+\Large{1.12. 2013}
+\end{center}
+\end{titlepage}
+
+
+
+\tableofcontents
+\newpage
+
+\section{Introduction}
+Main goal of project it to program parser for GPS coordinates in human readable form.
+Various formats are supported, as described later. Program accepts two ways of input. These are
+command line input and input from file. Processed coordinates are visualised in form of dots in 
+SVG image. 
+
+\section{Input}
+\subsection{Input source}
+As said before, two possibilities of input are supported. These are distinguished by command line 
+parameter to program. when parameter is present, then it is considered as path to file with input 
+and program tries to open file with given filepath. Other option is to run program without parameter and then program accepts command line input. In this mode, every input is considered to be coordinate and is procesed this way. To end input from command line enter \textit{quit}. 
+Program supposes every new coordinate on new line, multiple coordinates on one line are not 
+supported.
+
+\subsection{Coordinates formats}
+There are 18 different supported formats. Commonly used $\circ$ is substituted with \textbf{D}, 
+because degree symbol isn't part of 8-bit ASCII table, only the extended one. This could problems
+with flaweless operation of program on different platforms, so we decided to use capital letter D 
+instead.
+Formats are:
+\begin{itemize}
+\item{ddd:mm:ss[NS] ddd:mm:ss[WE] }
+\item{ddd:mm.mmmmm[NS] ddd:mm.mmmmm[WE]}
+\item{dddDmm'ss"[NS] dddDmm'ss"[WE]}
+\item{dddDmm.mmmmm'[NS] dddDmm.mmmmm'[WE]}
+\item{ddd.dddddd[NS] ddd.dddddd[WE]}
+\item{ddd.ddddddD[NS] ddd.ddddddD[WE]}
+
+\item{(-)ddd:mm:ss (-)ddd:mm:ss}
+\item{(-)ddd:mm.mmmmm (-)ddd:mm.mmmmm}
+\item{(-)dddDmm'ss" (-)dddDmm'ss"}
+\item{(-)dddDmm.mmmmm' (-)dddDmm.mmmmm'}
+\item{(-)ddd.dddddd (-)ddd.dddddd}
+\item{(-)ddd.ddddddD (-)ddd.ddddddD}
+
+\item{[NS]ddd:mm:ss.sss [WE]ddd:mm:ss.sss}
+\item{[NS]ddd:mm.mmmmm [WE]ddd:mm.mmmmm}
+\item{[NS]dddDmm'ss" [WE]dddDmm'ss"}
+\item{[NS]dddDmm.mmmmm' [WE]dddDmm.mmmmm'}
+\item{[NS]ddd.dddddd [WE]ddd.dddddd}
+\item{[NS]ddd.ddddddD [WE]ddd.ddddddD}
+\end{itemize}
+
+\paragraph{whitespaces}
+Each of these formats can be padded with any amount of spaces before and after.  
+Between longitude and latitude must be at least one space. No other whitespace characters are 
+supported and no whitespace characters are allowed inside of longitude or latitude declaration.
+
+\paragraph{Coordinates dimensions}
+In case of real numbers, any number of numerals behind 
+dot is supported, but only first six in case of degrees and first five in case of minutes are
+counted in final result, since such precision if more than enough with current GPS systems. 
+
+\subparagraph{latitude}
+Latitude cannot exceed $90\circ$ as it is considered as overflow, ad generally there isn't place 
+on earth with latitude greater than $90\circ$. Hemispheres of the Earth can be specified either with capital letters (\textbf{N} or \textbf{S}) or minus sign for south, as specified with each of the formats.
+\subparagraph{longitude}
+Longitude cannot exceed $180\circ$ for same reasons as latitude. And hemisperes can be specified 
+as previously, but different letters (\textbf{E} or \textbf{W}) or minus sign for east. 
+
+\subsection{Coordinates examples}
+\begin{itemize}
+\item{49:12:34N 016:36:00E }
+\item{49:12.577N 16:36.006E}
+\item{49D12'34"N 16D36'00"E}
+\item{49D12.577'N 16D36.00'E}
+\item{49.21096N 16.59796E}
+\item{49.21096DN 16.59796DE}
+ 
+\item{049:12:34 016:36:00 }
+\item{49:12.577 16:36.006}
+\item{49D12'34" 16D36'00"}
+\item{49D12.577' 16D36.00'}
+\item{49.21096 16.59796}
+\item{49.21096D 16.59796D}
+
+\item{N049:12:34 E016:36:00 }
+\item{N49:12.577 E16:36.006}
+\item{N49D12'34" E16D36'00"}
+\item{N49D12.577' E16D36.00'}
+\item{N49.21096 E16.59796}
+\item{N49.21096D E16.59796D}
+\end{itemize}
+
+\section{Output}
+There are two output formats, one is SVG file, which contains dots representing coordinates on Earth surface. Other output is just text which is produced after all coordinates are processed.
+\end{document}
+
+
+
+
