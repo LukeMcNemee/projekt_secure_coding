@@ -202,19 +202,13 @@ Coordinate Parser::minus_colon_dms(std::string line) {
     Coordinate coordinate;
 
     coordinate.setLatitudeCompas(compas_lat);
-    if(atoi(deg_lat.c_str()) > 90) throw CoordinateOverlowException();
     coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
-    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeMinutes(atoi(min_lat.c_str()));
-    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeSeconds(atoi(sec_lat.c_str()));
 
     coordinate.setLongitudeCompas(compas_lon);
-    if(atoi(deg_lon.c_str()) > 180) throw CoordinateOverlowException();
     coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
-    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeMinutes(atoi(min_lon.c_str()));
-    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeSeconds(atoi(sec_lon.c_str()));
 
     return coordinate;
@@ -284,7 +278,7 @@ Coordinate Parser::minus_colon_dm(std::string line) {
                 state = lat_minnum;
             }
             else if(state == lat_dot || state == lat_mindec) {
-                if(min_lat.size() < 7) min_lat += c;
+                min_lat += c;
                 state = lat_mindec;
             }
             else if(state == space || state == lon_minus || state == lon_deg) {
@@ -298,7 +292,7 @@ Coordinate Parser::minus_colon_dm(std::string line) {
                 state = lon_minnum;
             }
             else if(state == lon_dot || state == lon_mindec) {
-                if(min_lon.size() < 7) min_lon += c;
+                min_lon += c;
                 state = lon_mindec;
             }
             else throw CharException();
@@ -385,7 +379,7 @@ Coordinate Parser::minus_colon_d(std::string line) {
                 state = lat_degnum;
             }
             else if(state == lat_dot || state == lat_degdec) {
-                if(deg_lat.size() < 20) deg_lat += c;
+                deg_lat += c;
                 state = lat_degdec;
             }
             else if(state == space || state == lon_minus || state == lon_degnum) {
@@ -394,7 +388,7 @@ Coordinate Parser::minus_colon_d(std::string line) {
                 state = lon_degnum;
             }
             else if(state == lon_dot || state == lon_degdec) {
-                if(deg_lon.size() < 21) deg_lon += c;
+                deg_lon += c;
                 state = lon_degdec;
             }
             else throw CharException();
@@ -1686,19 +1680,13 @@ Coordinate Parser::compas_colon_dms(std::string line) {
     Coordinate coordinate;
 
     coordinate.setLatitudeCompas(compas_lat);
-    if(atoi(deg_lat.c_str()) > 90) throw CoordinateOverlowException();
     coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
-    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeMinutes(atoi(min_lat.c_str()));
-    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLatitudeSeconds(atoi(sec_lat.c_str()));
 
     coordinate.setLongitudeCompas(compas_lon);
-    if(atoi(deg_lon.c_str()) > 180) throw CoordinateOverlowException();
     coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
-    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeMinutes(atoi(min_lon.c_str()));
-    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw CoordinateOverlowException();
     coordinate.setLongitudeSeconds(atoi(sec_lon.c_str()));
 
     return coordinate;
@@ -1772,7 +1760,7 @@ Coordinate Parser::compas_colon_dm(std::string line) {
                 state = lat_minnum;
             }
             else if(state == lat_dot || state == lat_mindec) {
-                if(min_lat.size() < 7) min_lat += c;
+                min_lat += c;
                 state = lat_mindec;
             }
             else if(state == lon_compas || state == lon_deg) {
@@ -1786,7 +1774,7 @@ Coordinate Parser::compas_colon_dm(std::string line) {
                 state = lon_minnum;
             }
             else if(state == lon_dot || state == lon_mindec) {
-                if(min_lon.size() < 7) min_lon += c;
+                min_lon += c;
                 state = lon_mindec;
             }
             else throw CharException();
@@ -1877,7 +1865,7 @@ Coordinate Parser::compas_colon_d(std::string line) {
                 state = lat_degnum;
             }
             else if(state == lat_dot || state == lat_degdec) {
-                if(deg_lat.size() < 20) deg_lat += c;
+                deg_lat += c;
                 state = lat_degdec;
             }
             else if(state == lon_compas || state == lon_degnum) {
@@ -1886,7 +1874,7 @@ Coordinate Parser::compas_colon_d(std::string line) {
                 state = lon_degnum;
             }
             else if(state == lon_dot || state == lon_degdec) {
-                if(deg_lon.size() < 21) deg_lon += c;
+                deg_lon += c;
                 state = lon_degdec;
             }
             else throw CharException();
@@ -2358,7 +2346,8 @@ Coordinate Parser::compas_degree_dm(std::string line) {
     char compas_lat = 'N';
     char compas_lon = 'E';
 
-
+    int decPlac_lat = 0;
+    int decPlac_lon = 0;
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator){
         switch(state){
@@ -2485,7 +2474,8 @@ Coordinate Parser::compas_degree_dm(std::string line) {
                     )
              )
             {
-                state = minute1_dot_num;                
+                state = minute1_dot_num;
+                decPlac_lat++;
                 min_lat += line[iterator];
                 break;
             }
@@ -2495,6 +2485,10 @@ Coordinate Parser::compas_degree_dm(std::string line) {
            }
 
         case minute1_dot_num:
+            if(decPlac_lat >= 7) {
+                state = hell;
+                break;
+            }
             if(
                      (
                          line[iterator] == '0' ||
@@ -2506,6 +2500,7 @@ Coordinate Parser::compas_degree_dm(std::string line) {
                      )
               )
             {
+                decPlac_lat++;
                 state = minute1_dot_num;
                 min_lat += line[iterator];
                 break;
@@ -2683,6 +2678,7 @@ Coordinate Parser::compas_degree_dm(std::string line) {
               )
              {
                  state = minute2_dot_num;
+                 decPlac_lon++;
                  min_lon += line[iterator];
                  break;
              }
@@ -2692,7 +2688,10 @@ Coordinate Parser::compas_degree_dm(std::string line) {
             }
 
         case minute2_dot_num:
-
+            if(decPlac_lon >= 7) {
+                state = hell;
+                break;
+            }
             if(
                      (
                          line[iterator] == '0' ||
@@ -2704,6 +2703,7 @@ Coordinate Parser::compas_degree_dm(std::string line) {
                      )
               )
             {
+                decPlac_lon++;
                 state = minute2_dot_num;
                 min_lon += line[iterator];
                 break;
@@ -4251,7 +4251,6 @@ Coordinate Parser::degree_dm_compas(std::string line) {
     coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
 
     return coordinate;
-
 }
 
 Coordinate Parser::degree_d_compas(std::string line) {
