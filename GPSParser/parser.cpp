@@ -2358,8 +2358,7 @@ Coordinate Parser::compas_degree_dm(std::string line) {
     char compas_lat = 'N';
     char compas_lon = 'E';
 
-    int decPlac_lat = 0;
-    int decPlac_lon = 0;
+
 
     for(unsigned int iterator = 0; iterator <= line.size(); ++iterator){
         switch(state){
@@ -2486,8 +2485,7 @@ Coordinate Parser::compas_degree_dm(std::string line) {
                     )
              )
             {
-                state = minute1_dot_num;
-                decPlac_lat++;
+                state = minute1_dot_num;                
                 min_lat += line[iterator];
                 break;
             }
@@ -2497,10 +2495,6 @@ Coordinate Parser::compas_degree_dm(std::string line) {
            }
 
         case minute1_dot_num:
-            if(decPlac_lat >= 7) {
-                state = hell;
-                break;
-            }
             if(
                      (
                          line[iterator] == '0' ||
@@ -2512,7 +2506,6 @@ Coordinate Parser::compas_degree_dm(std::string line) {
                      )
               )
             {
-                decPlac_lat++;
                 state = minute1_dot_num;
                 min_lat += line[iterator];
                 break;
@@ -2690,7 +2683,6 @@ Coordinate Parser::compas_degree_dm(std::string line) {
               )
              {
                  state = minute2_dot_num;
-                 decPlac_lon++;
                  min_lon += line[iterator];
                  break;
              }
@@ -2700,10 +2692,7 @@ Coordinate Parser::compas_degree_dm(std::string line) {
             }
 
         case minute2_dot_num:
-            if(decPlac_lon >= 7) {
-                state = hell;
-                break;
-            }
+
             if(
                      (
                          line[iterator] == '0' ||
@@ -2715,7 +2704,6 @@ Coordinate Parser::compas_degree_dm(std::string line) {
                      )
               )
             {
-                decPlac_lon++;
                 state = minute2_dot_num;
                 min_lon += line[iterator];
                 break;
