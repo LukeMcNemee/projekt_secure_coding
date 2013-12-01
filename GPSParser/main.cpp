@@ -34,6 +34,7 @@ int main(int argc, char* argv[])
     if(fileOpen){
         std::getline(file, line);
     } else {
+        //line = "-08D7\'7\" 078D7\'7\"";
         std::getline(std::cin, line);
     }
 

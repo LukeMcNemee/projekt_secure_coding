@@ -43,8 +43,7 @@ Coordinate Parser::parseInput(std::string line){
             coordinate = minus_colon_d(line);
 
         } else if (col == 0 && deg == 2 && aph == 0 && quo == 0 && dot == 2){
-            //(-)ddd.ddddddD (-)ddd.ddddddD
-
+            coordinate = minus_degree_d(line);
         } else {
             throw PatternException();
         }
@@ -68,8 +67,7 @@ Coordinate Parser::parseInput(std::string line){
             coordinate = compas_colon_d(line);
 
         } else if (col == 0 && deg == 2 && aph == 0 && quo == 0 && dot == 2){
-            //[NS]ddd.ddddddD [WE]ddd.ddddddD
-
+            coordinate = compas_degree_d(line);
         } else {
             throw PatternException();
         }
@@ -93,7 +91,7 @@ Coordinate Parser::parseInput(std::string line){
             coordinate = colon_d_compas(line);
 
         } else if (col == 0 && deg == 2 && aph == 0 && quo == 0 && dot == 2){
-            //ddd.ddddddD[NS] ddd.ddddddD[WE]
+            coordinate = degree_d_compas(line);
 
         } else {
             throw PatternException();
@@ -625,12 +623,12 @@ Coordinate Parser::minus_degree_dms(std::string line) {
                 break;
             }
             if(line[iterator] == '-'){
-                compas_lat = 'E';
+                compas_lon = 'E';
                 state = lon_compas_ok;
                 break;
             }
             else {
-                compas_lat = 'W';
+                compas_lon = 'W';
                 state = lon_compas_ok;
                 // no break!!!
             }
@@ -828,7 +826,7 @@ Coordinate Parser::minus_degree_dms(std::string line) {
             throw PatternException();
             break;
 
-        default:
+        default: throw CharException();
             break;
         }
     }
@@ -854,8 +852,745 @@ Coordinate Parser::minus_degree_dms(std::string line) {
     return coordinate;
 
 }
-Coordinate Parser::minus_degree_dm(std::string line) {}
-Coordinate Parser::minus_degree_d(std::string line) {}
+
+Coordinate Parser::minus_degree_dm(std::string line) {
+    enum states {start, lat_compas_ok, degree1_ok, degree2_ok, minute1_dot, minute2_dot, minute1_dot_num, minute2_dot_num, minute1_ok, minute2_ok, second1_ok, second2_ok, lat_space_ok, lon_compas_ok, done, hell};
+    states state = start;
+
+    std::string deg_lat = "";
+    std::string min_lat = "";
+    char compas_lat = 'N';
+
+    std::string deg_lon = "";
+    std::string min_lon = "";
+    char compas_lon = 'E';
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator){
+        switch(state){
+        case start:
+            if(line[iterator]  == ' '){
+                state = start;
+                break;
+            }
+            if(line[iterator] == '-'){
+                compas_lat = 'S';
+                state = lat_compas_ok;
+                break;
+            }
+            else {
+                compas_lat = 'N';
+                state = lat_compas_ok;
+                // no break!!!
+            }
+
+        case lat_compas_ok:
+           if(
+                   (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == 'D'
+                    )
+            {
+                state = degree1_ok;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == 'D'
+               )
+            {
+                state = degree1_ok;
+                deg_lat += line[iterator];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_ok:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+
+                   )
+            {
+                state = minute1_dot;
+                min_lat += line[iterator];
+                min_lat += line[iterator+1];
+                min_lat += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+                   )
+            {
+                state = minute1_dot;
+                min_lat += line[iterator];
+                min_lat += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute1_dot:
+           if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+             )
+            {
+                state = minute1_dot_num;
+                min_lat += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute1_dot_num:
+            if(
+                     (
+                         line[iterator] == '0' ||
+                         line[iterator] == '1' || line[iterator] == '2' ||
+                         line[iterator] == '3' || line[iterator] == '4' ||
+                         line[iterator] == '5' || line[iterator] == '6' ||
+                         line[iterator] == '7' || line[iterator] == '8' ||
+                         line[iterator] == '9'
+                     )
+              )
+             {
+                 state = minute1_dot_num;
+                 min_lat += line[iterator];
+                 break;
+             }
+            else if(line[iterator] == '\'') {
+                state = minute1_ok;
+                break;
+            }
+            else {
+                 state = hell;
+                 break;
+             }
+
+        case minute1_ok:
+            if(line[iterator] = ' '){
+                state = lat_space_ok;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case lat_space_ok:
+            if(line[iterator] == ' '){
+                state = lat_space_ok;
+                break;
+            }
+            if(line[iterator] == '-'){
+                compas_lon = 'E';
+                state = lon_compas_ok;
+                break;
+            }
+            else {
+                compas_lon = 'W';
+                state = lon_compas_ok;
+                // no break!!!
+            }
+
+        case lon_compas_ok:
+
+            if((line[iterator] == '0' || line[iterator] == '1') &&
+                    (
+                        line[iterator+1] == '0' ||
+                        line[iterator+1] == '1' || line[iterator+1] == '2' ||
+                        line[iterator+1] == '3' || line[iterator+1] == '4' ||
+                        line[iterator+1] == '5' || line[iterator+1] == '6' ||
+                        line[iterator+1] == '7' || line[iterator+1] == '8' ||
+                        line[iterator+1] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+2] == '0' || line[iterator+2] == '1' ||
+                        line[iterator+2] == '2' || line[iterator+2] == '3' ||
+                        line[iterator+2] == '4' || line[iterator+2] == '5' ||
+                        line[iterator+2] == '6' || line[iterator+2] == '7' ||
+                        line[iterator+2] == '8' || line[iterator+2] == '9'
+                    )
+                    && line[iterator+3] == 'D'
+               )
+            {
+                state = degree2_ok;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                iterator+=3;
+                break;
+            }
+            if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == 'D'
+                    )
+            {
+                state = degree2_ok;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == 'D'
+               )
+            {
+                state = degree2_ok;
+                deg_lon += line[iterator];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_ok:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+
+                   )
+            {
+                state = minute2_dot;
+                min_lon += line[iterator];
+                min_lon += line[iterator+1];
+                min_lon += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+                   )
+            {
+                state = minute2_dot;
+                min_lon += line[iterator];
+                min_lon += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute2_dot:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+              )
+            {
+                state = minute2_dot_num;
+                min_lon += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute2_dot_num:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+              )
+            {
+                state = minute2_dot_num;
+                min_lon += line[iterator];
+                break;
+            }
+            else if(line[iterator] == '\''){
+                state = minute2_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute2_ok:
+            state = done;
+            break;
+
+        case done:
+            if(line[iterator] == ' '){
+                state = done;
+            }
+            else if(line[iterator] == '\0'){
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+
+            break;
+
+        case hell:
+            throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
+    }
+
+    Coordinate coordinate;
+
+    double float_minutes_lat = atof(min_lat.c_str());
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_minutes_lon = atof(min_lon.c_str());
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
+
+}
+
+Coordinate Parser::minus_degree_d(std::string line) {
+    enum states {start, lat_compas_ok, degree1_ok, degree1_dot, degree2_dot, degree1_dot_num, degree2_dot_num, degree2_ok, minute1_dot, minute2_dot, minute1_dot_num, minute2_dot_num, minute1_ok, minute2_ok, second1_ok, second2_ok, lat_space_ok, lon_compas_ok, done, hell};
+    states state = start;
+
+    std::string deg_lat = "";
+    char compas_lat = 'N';
+
+    std::string deg_lon = "";
+    char compas_lon = 'E';
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator){
+        switch(state){
+        case start:
+            if(line[iterator]  == ' '){
+                state = start;
+                break;
+            }
+            if(line[iterator] == '-'){
+                compas_lat = 'S';
+                state = lat_compas_ok;
+                break;
+            }
+            else {
+                compas_lat = 'N';
+                state = lat_compas_ok;
+                // no break!!!
+            }
+
+        case lat_compas_ok:
+           if(
+                   (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+                    )
+            {
+                state = degree1_dot;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                deg_lat += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+               )
+            {
+                state = degree1_dot;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_dot:
+           if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+             )
+            {
+                state = degree1_dot_num;
+                deg_lat += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_dot_num:
+            if(
+                     (
+                         line[iterator] == '0' ||
+                         line[iterator] == '1' || line[iterator] == '2' ||
+                         line[iterator] == '3' || line[iterator] == '4' ||
+                         line[iterator] == '5' || line[iterator] == '6' ||
+                         line[iterator] == '7' || line[iterator] == '8' ||
+                         line[iterator] == '9'
+                     )
+              )
+             {
+                 state = degree1_dot_num;
+                 deg_lat += line[iterator];
+                 break;
+             }
+            else if(line[iterator] == 'D') {
+                state = degree1_ok;
+                break;
+            }
+            else {
+                 state = hell;
+                 break;
+             }
+
+        case degree1_ok:
+            if(line[iterator] = ' '){
+                state = lat_space_ok;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case lat_space_ok:
+            if(line[iterator] == ' '){
+                state = lat_space_ok;
+                break;
+            }
+            if(line[iterator] == '-'){
+                compas_lon = 'E';
+                state = lon_compas_ok;
+                break;
+            }
+            else {
+                compas_lon = 'W';
+                state = lon_compas_ok;
+                // no break!!!
+            }
+
+        case lon_compas_ok:
+
+            if((line[iterator] == '0' || line[iterator] == '1') &&
+                    (
+                        line[iterator+1] == '0' ||
+                        line[iterator+1] == '1' || line[iterator+1] == '2' ||
+                        line[iterator+1] == '3' || line[iterator+1] == '4' ||
+                        line[iterator+1] == '5' || line[iterator+1] == '6' ||
+                        line[iterator+1] == '7' || line[iterator+1] == '8' ||
+                        line[iterator+1] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+2] == '0' || line[iterator+2] == '1' ||
+                        line[iterator+2] == '2' || line[iterator+2] == '3' ||
+                        line[iterator+2] == '4' || line[iterator+2] == '5' ||
+                        line[iterator+2] == '6' || line[iterator+2] == '7' ||
+                        line[iterator+2] == '8' || line[iterator+2] == '9'
+                    )
+                    && line[iterator+3] == '.'
+               )
+            {
+                state = degree2_ok;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                deg_lon += line[iterator+3];
+                iterator+=3;
+                break;
+            }
+            if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+                    )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+               )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_dot:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+              )
+            {
+                state = degree2_dot_num;
+                deg_lon += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_dot_num:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+              )
+            {
+                state = degree2_dot_num;
+                deg_lon += line[iterator];
+                break;
+            }
+            else if(line[iterator] == 'D'){
+                state = degree2_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_ok:
+            state = done;
+            break;
+
+        case done:
+            if(line[iterator] == ' '){
+                state = done;
+            }
+            else if(line[iterator] == '\0'){
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+
+            break;
+
+        case hell:
+            throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
+    }
+
+    Coordinate coordinate;
+
+    double float_degrees_lat = atof(deg_lat.c_str());
+    double float_minutes_lat = (float_degrees_lat - floor(float_degrees_lat)) * 60;
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees((unsigned short) floor(float_degrees_lat));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_degrees_lon = atof(deg_lon.c_str());
+    double float_minutes_lon = (float_degrees_lon - floor(float_degrees_lon)) * 60;
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees((unsigned short) floor(float_degrees_lon));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
+
+
+
+}
 
 Coordinate Parser::compas_colon_dms(std::string line) {
 
@@ -1582,7 +2317,7 @@ Coordinate Parser::compas_degree_dms(std::string line) {
             throw PatternException();
             break;
 
-        default:
+        default: throw CharException();
             break;
         }
     }
@@ -1607,8 +2342,776 @@ Coordinate Parser::compas_degree_dms(std::string line) {
 
     return coordinate;
 }
-Coordinate Parser::compas_degree_dm(std::string line) {}
-Coordinate Parser::compas_degree_d(std::string line) {}
+
+Coordinate Parser::compas_degree_dm(std::string line) {
+    enum states {start, minute1_dot, minute2_dot, minute1_dot_num, minute2_dot_num, lat_compas_ok, lon_compas_ok, degree1_ok, minute1_ok, second1_ok, lat_ok, lat_space_ok, degree2_ok, minute2_ok, second2_ok, len_ok, done, hell};
+    states state = start;
+
+    std::string deg_lat = "";
+    std::string min_lat = "";
+
+
+    std::string deg_lon = "";
+    std::string min_lon = "";
+
+
+    char compas_lat = 'N';
+    char compas_lon = 'E';
+
+    int decPlac_lat = 0;
+    int decPlac_lon = 0;
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator){
+        switch(state){
+        case start:
+            if(line[iterator]  == ' '){
+                state = start;
+                break;
+            }
+            if(line[iterator] == 'N' || line[iterator] == 'S'){
+                compas_lat = line[iterator];
+                state = lat_compas_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case lat_compas_ok:
+           if(
+                   (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == 'D'
+                    )
+            {
+                state = degree1_ok;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == 'D'
+               )
+            {
+                state = degree1_ok;
+                deg_lat += line[iterator];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_ok:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+                   )
+            {
+                state = minute1_dot;
+                min_lat += line[iterator];
+                min_lat += line[iterator+1];
+                iterator+=2;
+                break;
+            }
+            else if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+                   )
+            {
+                state = minute1_dot;
+                min_lat += line[iterator];
+                min_lat += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute1_dot:
+           if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+             )
+            {
+                state = minute1_dot_num;
+                decPlac_lat++;
+                min_lat += line[iterator];
+                break;
+            }
+           else {
+               state = hell;
+               break;
+           }
+
+        case minute1_dot_num:
+            if(decPlac_lat >= 7) {
+                state = hell;
+                break;
+            }
+            if(
+                     (
+                         line[iterator] == '0' ||
+                         line[iterator] == '1' || line[iterator] == '2' ||
+                         line[iterator] == '3' || line[iterator] == '4' ||
+                         line[iterator] == '5' || line[iterator] == '6' ||
+                         line[iterator] == '7' || line[iterator] == '8' ||
+                         line[iterator] == '9'
+                     )
+              )
+            {
+                decPlac_lat++;
+                state = minute1_dot_num;
+                min_lat += line[iterator];
+                break;
+            }
+            else if(line[iterator] == '\''){
+                state = minute1_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute1_ok:
+            if(line[iterator] = ' '){
+                state = lat_space_ok;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case lat_space_ok:
+            if(line[iterator] == ' '){
+                state = lat_space_ok;
+                break;
+            }
+            if(line[iterator] == 'E' || line[iterator] == 'W'){
+                compas_lon = line[iterator];
+                state = lon_compas_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case lon_compas_ok:
+
+            if((line[iterator] == '0' || line[iterator] == '1') &&
+                    (
+                        line[iterator+1] == '0' ||
+                        line[iterator+1] == '1' || line[iterator+1] == '2' ||
+                        line[iterator+1] == '3' || line[iterator+1] == '4' ||
+                        line[iterator+1] == '5' || line[iterator+1] == '6' ||
+                        line[iterator+1] == '7' || line[iterator+1] == '8' ||
+                        line[iterator+1] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+2] == '0' || line[iterator+2] == '1' ||
+                        line[iterator+2] == '2' || line[iterator+2] == '3' ||
+                        line[iterator+2] == '4' || line[iterator+2] == '5' ||
+                        line[iterator+2] == '6' || line[iterator+2] == '7' ||
+                        line[iterator+2] == '8' || line[iterator+2] == '9'
+                    )
+                    && line[iterator+3] == 'D'
+               )
+            {
+                state = degree2_ok;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                iterator+=3;
+                break;
+            }
+            if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == 'D'
+                    )
+            {
+                state = degree2_ok;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == 'D'
+               )
+            {
+                state = degree2_ok;
+                deg_lon += line[iterator];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+            //tady
+
+        case degree2_ok:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+
+                   )
+            {
+                state = minute2_dot;
+                min_lon += line[iterator];
+                min_lon += line[iterator+1];
+                min_lon += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+                   )
+            {
+                state = minute2_dot;
+                min_lon += line[iterator];
+                min_lon += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute2_dot:
+            if(
+                     (
+                         line[iterator] == '0' ||
+                         line[iterator] == '1' || line[iterator] == '2' ||
+                         line[iterator] == '3' || line[iterator] == '4' ||
+                         line[iterator] == '5' || line[iterator] == '6' ||
+                         line[iterator] == '7' || line[iterator] == '8' ||
+                         line[iterator] == '9'
+                     )
+              )
+             {
+                 state = minute2_dot_num;
+                 decPlac_lon++;
+                 min_lon += line[iterator];
+                 break;
+             }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute2_dot_num:
+            if(decPlac_lon >= 7) {
+                state = hell;
+                break;
+            }
+            if(
+                     (
+                         line[iterator] == '0' ||
+                         line[iterator] == '1' || line[iterator] == '2' ||
+                         line[iterator] == '3' || line[iterator] == '4' ||
+                         line[iterator] == '5' || line[iterator] == '6' ||
+                         line[iterator] == '7' || line[iterator] == '8' ||
+                         line[iterator] == '9'
+                     )
+              )
+            {
+                decPlac_lon++;
+                state = minute2_dot_num;
+                min_lon += line[iterator];
+                break;
+            }
+            else if(line[iterator] == '\''){
+                state = minute2_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute2_ok:
+            if(line[iterator] == ' '){
+                state = done;
+            }
+            else if(line[iterator] == '\0'){
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case done:
+            if(line[iterator] == ' '){
+                state = done;
+            }
+            else if(line[iterator] == '\0'){
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+
+            break;
+
+        case hell:
+            throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
+
+            }
+
+    Coordinate coordinate;
+
+    double float_minutes_lat = atof(min_lat.c_str());
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_minutes_lon = atof(min_lon.c_str());
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
+}
+
+Coordinate Parser::compas_degree_d(std::string line) {
+
+    enum states {start, degree1_dot, degree2_dot, degree1_dot_num, degree2_dot_num, lat_compas_ok, lon_compas_ok, degree1_ok, minute1_ok, second1_ok, lat_ok, lat_space_ok, degree2_ok, minute2_ok, second2_ok, len_ok, done, hell};
+    states state = start;
+
+    std::string deg_lat = "";
+
+    std::string deg_lon = "";
+
+    char compas_lat = 'N';
+    char compas_lon = 'E';
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator){
+        switch(state){
+        case start:
+            if(line[iterator]  == ' '){
+                state = start;
+                break;
+            }
+            if(line[iterator] == 'N' || line[iterator] == 'S'){
+                compas_lat = line[iterator];
+                state = lat_compas_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case lat_compas_ok:
+           if(
+                   (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+                    )
+            {
+                state = degree1_dot;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                deg_lat += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+               )
+            {
+                state = degree1_dot;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_dot:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+               )
+            {
+                state = degree1_dot_num;
+                deg_lat += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_dot_num:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+               )
+            {
+                state = degree1_dot_num;
+                deg_lat += line[iterator];
+                break;
+            }
+            else if(line[iterator] == 'D'){
+                state = degree1_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_ok:
+            if(line[iterator] = ' '){
+                state = lat_space_ok;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case lat_space_ok:
+            if(line[iterator] == ' '){
+                state = lat_space_ok;
+                break;
+            }
+            if(line[iterator] == 'E' || line[iterator] == 'W'){
+                compas_lon = line[iterator];
+                state = lon_compas_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case lon_compas_ok:
+
+            if((line[iterator] == '0' || line[iterator] == '1') &&
+                    (
+                        line[iterator+1] == '0' ||
+                        line[iterator+1] == '1' || line[iterator+1] == '2' ||
+                        line[iterator+1] == '3' || line[iterator+1] == '4' ||
+                        line[iterator+1] == '5' || line[iterator+1] == '6' ||
+                        line[iterator+1] == '7' || line[iterator+1] == '8' ||
+                        line[iterator+1] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+2] == '0' || line[iterator+2] == '1' ||
+                        line[iterator+2] == '2' || line[iterator+2] == '3' ||
+                        line[iterator+2] == '4' || line[iterator+2] == '5' ||
+                        line[iterator+2] == '6' || line[iterator+2] == '7' ||
+                        line[iterator+2] == '8' || line[iterator+2] == '9'
+                    )
+                    && line[iterator+3] == '.'
+               )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                deg_lon += line[iterator+3];
+                iterator+=3;
+                break;
+            }
+            if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+                    )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+               )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_dot:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+               )
+            {
+                state = degree2_dot_num;
+                deg_lon += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+
+        case degree2_dot_num:
+            if(
+                     (
+                         line[iterator] == '0' ||
+                         line[iterator] == '1' || line[iterator] == '2' ||
+                         line[iterator] == '3' || line[iterator] == '4' ||
+                         line[iterator] == '5' || line[iterator] == '6' ||
+                         line[iterator] == '7' || line[iterator] == '8' ||
+                         line[iterator] == '9'
+                     )
+              )
+            {
+                state = degree2_dot_num;
+                deg_lon += line[iterator];
+                break;
+            }
+            else if(line[iterator] == 'D'){
+                state = degree2_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_ok:
+            if(line[iterator] == ' '){
+                state = done;
+            }
+            else if(line[iterator] == '\0'){
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case done:
+            if(line[iterator] == ' '){
+                state = done;
+            }
+            else if(line[iterator] == '\0'){
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+
+            break;
+
+        case hell:
+            throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
+
+            }
+
+    Coordinate coordinate;
+
+    double float_degrees_lat = atof(deg_lat.c_str());
+    double float_minutes_lat = (float_degrees_lat - floor(float_degrees_lat)) * 60;
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees((unsigned short) floor(float_degrees_lat));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_degrees_lon = atof(deg_lon.c_str());
+    double float_minutes_lon = (float_degrees_lon - floor(float_degrees_lon)) * 60;
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees((unsigned short) floor(float_degrees_lon));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
+}
 
 Coordinate Parser::colon_dms_compas(std::string line) {
 
@@ -1721,6 +3224,7 @@ Coordinate Parser::colon_dms_compas(std::string line) {
 
     return coordinate;
 }
+
 
 Coordinate Parser::colon_dm_compas(std::string line) {
 
@@ -2326,7 +3830,7 @@ Coordinate Parser::degree_dms_compas(std::string line) {
             throw PatternException();
             break;
 
-        default:
+        default: throw CharException();
             break;
         }
     }
@@ -2352,17 +3856,16 @@ Coordinate Parser::degree_dms_compas(std::string line) {
     return coordinate;
 
 }
+
 Coordinate Parser::degree_dm_compas(std::string line) {
-    enum states {start, degree1_ok, minute1_ok, second1_ok, lat_ok, lat_space_ok, degree2_ok, minute2_ok, second2_ok, len_ok, done, hell};
+    enum states {start, degree1_ok, minute1_ok, minute1_dot, minute2_dot, minute1_dot_num, minute2_dot_num,second1_ok, lat_ok, lat_space_ok, degree2_ok, minute2_ok, second2_ok, len_ok, done, hell};
     states state = start;
 
     std::string deg_lat = "";
     std::string min_lat = "";
-    std::string sec_lat = "";
 
     std::string deg_lon = "";
     std::string min_lon = "";
-    std::string sec_lon = "";
 
     char compas_lat = 'N';
     char compas_lon = 'E';
@@ -2438,13 +3941,14 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                         line[iterator+1] == '6' || line[iterator+1] == '7' ||
                         line[iterator+1] == '8' || line[iterator+1] == '9'
                     )
-                    && line[iterator+2] == '\''
+                    && line[iterator+2] == '.'
 
                    )
             {
-                state = minute1_ok;
+                state = minute1_dot;
                 min_lat += line[iterator];
                 min_lat += line[iterator+1];
+                min_lat += line[iterator+2];
                 iterator+=2;
                 break;
             }
@@ -2456,11 +3960,12 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                         line[iterator] == '6' || line[iterator] == '7' ||
                         line[iterator] == '8' || line[iterator] == '9'
                     )
-                    && line[iterator+1] == '\''
+                    && line[iterator+1] == '.'
                    )
             {
-                state = minute1_ok;
+                state = minute1_dot;
                 min_lat += line[iterator];
+                min_lat += line[iterator+1];
                 iterator+=1;
                 break;
             }
@@ -2469,7 +3974,7 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                 break;
             }
 
-        case minute1_ok:
+        case minute1_dot:
            if(
                     (
                         line[iterator] == '0' ||
@@ -2479,38 +3984,10 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                         line[iterator] == '7' || line[iterator] == '8' ||
                         line[iterator] == '9'
                     )
-                    &&
-                    (
-                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
-                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
-                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
-                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
-                        line[iterator+1] == '8' || line[iterator+1] == '9'
-                    )
-                    && line[iterator+2] == '\"'
-
-                   )
+             )
             {
-                state = second1_ok;
-                sec_lat += line[iterator];
-                sec_lat += line[iterator+1];
-                iterator+=2;
-                break;
-            }
-            else if(
-                    (
-                        line[iterator] == '0' || line[iterator] == '1' ||
-                        line[iterator] == '2' || line[iterator] == '3' ||
-                        line[iterator] == '4' || line[iterator] == '5' ||
-                        line[iterator] == '6' || line[iterator] == '7' ||
-                        line[iterator] == '8' || line[iterator] == '9'
-                    )
-                    && line[iterator+1] == '\"'
-                   )
-            {
-                state = second1_ok;
-                sec_lat += line[iterator];
-                iterator+=1;
+                state = minute1_dot_num;
+                min_lat += line[iterator];
                 break;
             }
             else {
@@ -2518,14 +3995,40 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                 break;
             }
 
-        case second1_ok:
+        case minute1_dot_num:
+            if(
+                     (
+                         line[iterator] == '0' ||
+                         line[iterator] == '1' || line[iterator] == '2' ||
+                         line[iterator] == '3' || line[iterator] == '4' ||
+                         line[iterator] == '5' || line[iterator] == '6' ||
+                         line[iterator] == '7' || line[iterator] == '8' ||
+                         line[iterator] == '9'
+                     )
+              )
+             {
+                 state = minute1_dot_num;
+                 min_lat += line[iterator];
+                 break;
+             }
+            else if(line[iterator] == '\'') {
+                state = minute1_ok;
+                break;
+            }
+             else {
+                 state = hell;
+                 break;
+             }
+
+        case minute1_ok:
             if(line[iterator] == 'N' || line[iterator] == 'S'){
                 compas_lat = line[iterator];
                 state = lat_ok;
             }
+            break;
 
         case lat_ok:
-            if(line[iterator] = ' '){
+            if(line[iterator] == ' '){
                 state = lat_space_ok;
             }
             else {
@@ -2629,13 +4132,14 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                         line[iterator+1] == '6' || line[iterator+1] == '7' ||
                         line[iterator+1] == '8' || line[iterator+1] == '9'
                     )
-                    && line[iterator+2] == '\''
+                    && line[iterator+2] == '.'
 
                    )
             {
-                state = minute2_ok;
+                state = minute2_dot;
                 min_lon += line[iterator];
                 min_lon += line[iterator+1];
+                min_lon += line[iterator+2];
                 iterator+=2;
                 break;
             }
@@ -2647,11 +4151,12 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                         line[iterator] == '6' || line[iterator] == '7' ||
                         line[iterator] == '8' || line[iterator] == '9'
                     )
-                    && line[iterator+1] == '\''
+                    && line[iterator+1] == '.'
                    )
             {
-                state = minute2_ok;
+                state = minute2_dot;
                 min_lon += line[iterator];
+                min_lon += line[iterator+1];
                 iterator+=1;
                 break;
             }
@@ -2660,7 +4165,7 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                 break;
             }
 
-        case minute2_ok:
+        case minute2_dot:
             if(
                     (
                         line[iterator] == '0' ||
@@ -2670,38 +4175,10 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                         line[iterator] == '7' || line[iterator] == '8' ||
                         line[iterator] == '9'
                     )
-                    &&
-                    (
-                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
-                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
-                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
-                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
-                        line[iterator+1] == '8' || line[iterator+1] == '9'
-                    )
-                    && line[iterator+2] == '\"'
-
-                   )
+               )
             {
-                state = second2_ok;
-                sec_lon += line[iterator];
-                sec_lon += line[iterator+1];
-                iterator+=2;
-                break;
-            }
-            else if(
-                    (
-                        line[iterator] == '0' || line[iterator] == '1' ||
-                        line[iterator] == '2' || line[iterator] == '3' ||
-                        line[iterator] == '4' || line[iterator] == '5' ||
-                        line[iterator] == '6' || line[iterator] == '7' ||
-                        line[iterator] == '8' || line[iterator] == '9'
-                    )
-                    && line[iterator+1] == '\"'
-                   )
-            {
-                state = second2_ok;
-                sec_lon += line[iterator];
-                iterator+=1;
+                state = minute2_dot_num;
+                min_lon += line[iterator];
                 break;
             }
             else {
@@ -2709,7 +4186,32 @@ Coordinate Parser::degree_dm_compas(std::string line) {
                 break;
             }
 
-        case second2_ok:
+        case minute2_dot_num:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+               )
+            {
+                state = minute2_dot_num;
+                min_lon += line[iterator];
+                break;
+            }
+            else if(line[iterator] == '\''){
+                state = minute2_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case minute2_ok:
             if(line[iterator] == 'E' || line[iterator] == 'W'){
                 compas_lon = line[iterator];
                 state = done;
@@ -2736,29 +4238,339 @@ Coordinate Parser::degree_dm_compas(std::string line) {
             throw PatternException();
             break;
 
-        default:
+        default: throw CharException();
             break;
         }
     }
 
     Coordinate coordinate;
 
+    double float_minutes_lat = atof(min_lat.c_str());
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
     coordinate.setLatitudeCompas(compas_lat);
-    if(atoi(deg_lat.c_str()) > 90) throw CoordinateOverlowException();
     coordinate.setLatitudeDegrees(atoi(deg_lat.c_str()));
-    if(atoi(min_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(min_lat.c_str()) != 0)) throw CoordinateOverlowException();
-    coordinate.setLatitudeMinutes(atoi(min_lat.c_str()));
-    if(atoi(sec_lat.c_str()) > 59 || (atoi(deg_lat.c_str()) == 90 && atoi(sec_lat.c_str()) != 0)) throw CoordinateOverlowException();
-    coordinate.setLatitudeSeconds(atoi(sec_lat.c_str()));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_minutes_lon = atof(min_lon.c_str());
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
 
     coordinate.setLongitudeCompas(compas_lon);
-    if(atoi(deg_lon.c_str()) > 180) throw CoordinateOverlowException();
     coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
-    if(atoi(min_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(min_lon.c_str()) != 0)) throw CoordinateOverlowException();
-    coordinate.setLongitudeMinutes(atoi(min_lon.c_str()));
-    if(atoi(sec_lon.c_str()) > 59 || (atoi(deg_lon.c_str()) == 180 && atoi(sec_lon.c_str()) != 0)) throw CoordinateOverlowException();
-    coordinate.setLongitudeSeconds(atoi(sec_lon.c_str()));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+}
+
+Coordinate Parser::degree_d_compas(std::string line) {
+    enum states {start, degree1_ok, minute1_ok, minute1_dot, degree1_dot, degree1_dot_num, degree2_dot, degree2_dot_num, minute2_dot, minute1_dot_num, minute2_dot_num,second1_ok, lat_ok, lat_space_ok, degree2_ok, minute2_ok, second2_ok, len_ok, done, hell};
+    states state = start;
+
+    std::string deg_lat = "";
+
+    std::string deg_lon = "";
+
+    char compas_lat = 'N';
+    char compas_lon = 'E';
+
+    for(unsigned int iterator = 0; iterator <= line.size(); ++iterator){
+        switch(state){
+        case start:
+            if(line[iterator]  == ' '){
+                state = start;
+                break;
+            }
+
+           if(
+                   (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+                    )
+            {
+                state = degree1_dot;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                deg_lat += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+               )
+            {
+                state = degree1_dot;
+                deg_lat += line[iterator];
+                deg_lat += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_dot:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+                   )
+            {
+                state = degree1_dot_num;
+                deg_lat += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_dot_num:
+           if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+             )
+            {
+                state = degree1_dot_num;
+                deg_lat += line[iterator];
+                break;
+            }
+           else if(line[iterator] == 'D'){
+               state = degree1_ok;
+               break;
+           }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree1_ok:
+            if(line[iterator] == 'N' || line[iterator] == 'S'){
+                compas_lat = line[iterator];
+                state = lat_ok;
+            }
+            break;
+
+        case lat_ok:
+            if(line[iterator] == ' '){
+                state = lat_space_ok;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case lat_space_ok:
+            if(line[iterator] == ' '){
+                state = lat_space_ok;
+                break;
+            }
+
+            if((line[iterator] == '0' || line[iterator] == '1') &&
+                    (
+                        line[iterator+1] == '0' ||
+                        line[iterator+1] == '1' || line[iterator+1] == '2' ||
+                        line[iterator+1] == '3' || line[iterator+1] == '4' ||
+                        line[iterator+1] == '5' || line[iterator+1] == '6' ||
+                        line[iterator+1] == '7' || line[iterator+1] == '8' ||
+                        line[iterator+1] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+2] == '0' || line[iterator+2] == '1' ||
+                        line[iterator+2] == '2' || line[iterator+2] == '3' ||
+                        line[iterator+2] == '4' || line[iterator+2] == '5' ||
+                        line[iterator+2] == '6' || line[iterator+2] == '7' ||
+                        line[iterator+2] == '8' || line[iterator+2] == '9'
+                    )
+                    && line[iterator+3] == '.'
+               )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                deg_lon += line[iterator+3];
+                iterator+=3;
+                break;
+            }
+            if(
+                    (
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    &&
+                    (
+                        line[iterator+1] == '0' || line[iterator+1] == '1' ||
+                        line[iterator+1] == '2' || line[iterator+1] == '3' ||
+                        line[iterator+1] == '4' || line[iterator+1] == '5' ||
+                        line[iterator+1] == '6' || line[iterator+1] == '7' ||
+                        line[iterator+1] == '8' || line[iterator+1] == '9'
+                    )
+                    && line[iterator+2] == '.'
+                    )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                deg_lon += line[iterator+2];
+                iterator+=2;
+                break;
+            }
+            else if((
+                        line[iterator] == '0' || line[iterator] == '1' ||
+                        line[iterator] == '2' || line[iterator] == '3' ||
+                        line[iterator] == '4' || line[iterator] == '5' ||
+                        line[iterator] == '6' || line[iterator] == '7' ||
+                        line[iterator] == '8' || line[iterator] == '9'
+                    )
+                    && line[iterator+1] == '.'
+               )
+            {
+                state = degree2_dot;
+                deg_lon += line[iterator];
+                deg_lon += line[iterator+1];
+                iterator+=1;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_dot:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+              )
+            {
+                state = degree2_dot_num;
+                deg_lon += line[iterator];
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+        case degree2_dot_num:
+            if(
+                    (
+                        line[iterator] == '0' ||
+                        line[iterator] == '1' || line[iterator] == '2' ||
+                        line[iterator] == '3' || line[iterator] == '4' ||
+                        line[iterator] == '5' || line[iterator] == '6' ||
+                        line[iterator] == '7' || line[iterator] == '8' ||
+                        line[iterator] == '9'
+                    )
+               )
+            {
+                state = degree2_dot_num;
+                deg_lon += line[iterator];
+                break;
+            }
+            else if(line[iterator] == 'D'){
+                state = degree2_ok;
+                break;
+            }
+            else {
+                state = hell;
+                break;
+            }
+
+
+        case degree2_ok:
+            if(line[iterator] == 'E' || line[iterator] == 'W'){
+                compas_lon = line[iterator];
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+            break;
+
+        case done:
+            if(line[iterator] == ' '){
+                state = done;
+            }
+            else if(line[iterator] == '\0'){
+                state = done;
+            }
+            else {
+                state = hell;
+            }
+
+            break;
+
+        case hell:
+            throw PatternException();
+            break;
+
+        default: throw CharException();
+            break;
+        }
+    }
+
+    Coordinate coordinate;
+
+    double float_degrees_lat = atof(deg_lat.c_str());
+    double float_minutes_lat = (float_degrees_lat - floor(float_degrees_lat)) * 60;
+    double float_seconds_lat = (float_minutes_lat - floor(float_minutes_lat)) * 60;
+
+    coordinate.setLatitudeCompas(compas_lat);
+    coordinate.setLatitudeDegrees((unsigned short) floor(float_degrees_lat));
+    coordinate.setLatitudeMinutes((unsigned short) floor(float_minutes_lat));
+    coordinate.setLatitudeSeconds((unsigned short) floor(float_seconds_lat + 0.5));
+
+    double float_degrees_lon = atof(deg_lon.c_str());
+    double float_minutes_lon = (float_degrees_lon - floor(float_degrees_lon)) * 60;
+    double float_seconds_lon = (float_minutes_lon - floor(float_minutes_lon)) * 60;
+
+    coordinate.setLongitudeCompas(compas_lon);
+    coordinate.setLongitudeDegrees((unsigned short) floor(float_degrees_lon));
+    coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
+    coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
 
     return coordinate;
+
 }
-Coordinate Parser::degree_d_compas(std::string line) {}
