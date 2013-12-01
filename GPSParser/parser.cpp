@@ -2448,6 +2448,7 @@ Coordinate Parser::compas_degree_dm(std::string line) {
                 state = minute1_dot;
                 min_lat += line[iterator];
                 min_lat += line[iterator+1];
+                min_lat += line[iterator+2];
                 iterator+=2;
                 break;
             }
@@ -4260,6 +4261,8 @@ Coordinate Parser::degree_dm_compas(std::string line) {
     coordinate.setLongitudeDegrees(atoi(deg_lon.c_str()));
     coordinate.setLongitudeMinutes((unsigned short) floor(float_minutes_lon));
     coordinate.setLongitudeSeconds((unsigned short) floor(float_seconds_lon + 0.5));
+
+    return coordinate;
 
 }
 
