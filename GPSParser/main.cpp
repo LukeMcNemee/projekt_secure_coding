@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <istream>
 #include <fstream>
 #include "parser.h"
@@ -87,6 +87,7 @@ int main(int argc, char* argv[])
     if(fileOpen){
         file.close();
     }
+
     return 0;
 }
 

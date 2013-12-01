@@ -1,4 +1,4 @@
-#ifndef PARSER_H
+ï»¿#ifndef PARSER_H
 #define PARSER_H
 
 #include "coordinate.h"
@@ -54,7 +54,7 @@ private:
 
     /**
      * @brief minus_degree_dms
-     * processes coordinates from the given string input in format (-)ddd°mm'ss" (-)ddd°mm'ss"
+     * processes coordinates from the given string input in format (-)dddDmm'ss" (-)dddDmm'ss"
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -62,7 +62,7 @@ private:
 
     /**
      * @brief minus_degree_dm
-     * processes coordinates from the given string input in format (-)ddd°mm.mmmmm' (-)ddd°mm.mmmmm'
+     * processes coordinates from the given string input in format (-)dddDmm.mmmmm' (-)dddDmm.mmmmm'
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -70,7 +70,7 @@ private:
 
     /**
      * @brief minus_degree_d
-     * processes coordinates from the given string input in format (-)ddd.dddddd° (-)ddd.dddddd°
+     * processes coordinates from the given string input in format (-)ddd.ddddddD (-)ddd.ddddddD
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -102,7 +102,7 @@ private:
 
     /**
      * @brief compas_degree_dms
-     * processes coordinates from the given string input in format [NS]ddd°mm'ss" [WE]ddd°mm'ss"
+     * processes coordinates from the given string input in format [NS]dddDmm'ss" [WE]dddDmm'ss"
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -110,7 +110,7 @@ private:
 
     /**
      * @brief compas_degree_dm
-     * processes coordinates from the given string input in format [NS]ddd°mm.mmmmm' [WE]ddd°mm.mmmmm'
+     * processes coordinates from the given string input in format [NS]dddDmm.mmmmm' [WE]dddDmm.mmmmm'
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -118,7 +118,7 @@ private:
 
     /**
      * @brief compas_degree_d
-     * processes coordinates from the given string input in format [NS]ddd.dddddd° [WE]ddd.dddddd°
+     * processes coordinates from the given string input in format [NS]ddd.ddddddD [WE]ddd.ddddddD
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -150,7 +150,7 @@ private:
 
     /**
      * @brief degree_dms_compas
-     * processes coordinates from the given string input in format ddd°mm'ss"[NS] ddd°mm'ss"[WE]
+     * processes coordinates from the given string input in format dddDmm'ss"[NS] dddDmm'ss"[WE]
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -158,7 +158,7 @@ private:
 
     /**
      * @brief degree_dm_compas
-     * processes coordinates from the given string input in format ddd°mm.mmmmm'[NS] ddd°mm.mmmmm'[WE]
+     * processes coordinates from the given string input in format dddDmm.mmmmm'[NS] dddDmm.mmmmm'[WE]
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
@@ -166,7 +166,7 @@ private:
 
     /**
      * @brief degree_d_compas
-     * processes coordinates from the given string input in format ddd.dddddd°[NS] ddd.dddddd°[WE]
+     * processes coordinates from the given string input in format ddd.ddddddD[NS] ddd.ddddddD[WE]
      * @param line string input with coordinates
      * @return coordinates parsed to coordinate class
      */
