@@ -1,0 +1,17 @@
+[keepassx-master\src\core\FilePath.h:39]: (style) Unused private function: 'FilePath::testSetDir'
+[keepassx-master\src\format\KeePass1Reader.cpp:51]: (warning) Member variable 'KeePass1Reader::m_db' is not initialized in the constructor.
+[keepassx-master\src\format\KeePass1Reader.cpp:51]: (warning) Member variable 'KeePass1Reader::m_tmpParent' is not initialized in the constructor.
+[keepassx-master\src\format\KeePass1Reader.cpp:51]: (warning) Member variable 'KeePass1Reader::m_device' is not initialized in the constructor.
+[keepassx-master\src\format\KeePass2Reader.cpp:35]: (warning) Member variable 'KeePass2Reader::m_device' is not initialized in the constructor.
+[keepassx-master\src\format\KeePass2Reader.cpp:35]: (warning) Member variable 'KeePass2Reader::m_headerStream' is not initialized in the constructor.
+[keepassx-master\src\format\KeePass2Reader.cpp:35]: (warning) Member variable 'KeePass2Reader::m_headerEnd' is not initialized in the constructor.
+[keepassx-master\src\format\KeePass2Reader.cpp:35]: (warning) Member variable 'KeePass2Reader::m_db' is not initialized in the constructor.
+[keepassx-master\src\format\KeePass2XmlReader.cpp:33]: (warning) Member variable 'KeePass2XmlReader::m_tmpParent' is not initialized in the constructor.
+[keepassx-master\src\streams\qtiocompressor.cpp:89]: (warning) Member variable 'QtIOCompressorPrivate::manageDevice' is not initialized in the constructor.
+[keepassx-master\tests\TestAutoType.h:30]: (style) The class 'TestAutoType' does not have a constructor.
+[keepassx-master\tests\TestKeePass1Reader.h:26]: (style) The class 'TestKeePass1Reader' does not have a constructor.
+[keepassx-master\tests\TestKeePass2Writer.h:25]: (style) The class 'TestKeePass2Writer' does not have a constructor.
+[keepassx-master\tests\TestKeePass2XmlReader.h:26]: (style) The class 'TestKeePass2XmlReader' does not have a constructor.
+[keepassx-master\tests\TestRandom.h:38]: (style) The class 'TestRandom' does not have a constructor.
+[keepassx-master\tests\TestWildcardMatcher.h:25]: (style) The class 'TestWildcardMatcher' does not have a constructor.
+[keepassx-master\tests\gui\TestGui.h:30]: (style) The class 'TestGui' does not have a constructor.

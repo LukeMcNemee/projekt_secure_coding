@@ -1,0 +1,21 @@
+1>------ Rebuild All started: Project: SVG_Parser, Configuration: Debug Win32 ------
+1>  stdafx.cpp
+1>  TValidationManager.cpp
+1>  SVG_Parser.cpp
+1>  pugixml.cpp
+1>  Running Code Analysis for C/C++...
+1>  Generating Code...
+1>  SVG_Parser.vcxproj -> C:\Users\Lenka\Desktop\svg\SVG_Parser\Debug\SVG_Parser.exe
+c:\users\lenka\desktop\svg\svg_parser\svg_parser\pugixml.cpp(5141): warning C6011: Dereferencing NULL pointer '_root'. 
+c:\users\lenka\desktop\svg\svg_parser\svg_parser\pugixml.cpp(6677): warning C6011: Dereferencing NULL pointer 'result'. 
+c:\users\lenka\desktop\svg\svg_parser\svg_parser\pugixml.cpp(7688): warning C6326: Potential comparison of a constant with another constant.
+c:\users\lenka\desktop\svg\svg_parser\svg_parser\pugixml.cpp(7709): warning C6326: Potential comparison of a constant with another constant.
+c:\users\lenka\desktop\svg\svg_parser\svg_parser\pugixml.cpp(7820): warning C6326: Potential comparison of a constant with another constant.
+c:\users\lenka\desktop\svg\svg_parser\svg_parser\pugixml.cpp(7858): warning C6326: Potential comparison of a constant with another constant.
+c:\users\lenka\desktop\svg\svg_parser\svg_parser\pugixml.cpp(7863): warning C6326: Potential comparison of a constant with another constant.
+2>------ Rebuild All started: Project: SVG_Parser_Tests, Configuration: Debug Win32 ------
+2>  stdafx.cpp
+2>  TValidationManagerTest.cpp
+2>     Creating library C:\Users\Lenka\Desktop\svg\SVG_Parser\Debug\SVG_Parser_Tests.lib and object C:\Users\Lenka\Desktop\svg\SVG_Parser\Debug\SVG_Parser_Tests.exp
+2>  SVG_Parser_Tests.vcxproj -> C:\Users\Lenka\Desktop\svg\SVG_Parser\Debug\SVG_Parser_Tests.dll
+========== Rebuild All: 2 succeeded, 0 failed, 0 skipped ==========

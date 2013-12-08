@@ -1,0 +1,8 @@
+[SVG_Parser\SVG_Parser\pugixml.cpp:2294]: (style) The scope of the variable 'ch' can be reduced
+[SVG_Parser\SVG_Parser\pugixml.cpp:4113]: (error) Pointer to temporary returned.
+[SVG_Parser\SVG_Parser\pugixml.cpp:5102]: (warning) Member variable 'xml_document::_memory' is not initialized in the constructor.
+[SVG_Parser\SVG_Parser\pugixml.cpp:9833]: (warning) Member variable 'xpath_variable::_type' is not initialized in the constructor.
+[SVG_Parser\SVG_Parser\pugixml.cpp:9833]: (warning) Member variable 'xpath_variable::_next' is not initialized in the constructor.
+[SVG_Parser\SVG_Parser\pugixml.cpp:6606]: (warning) Member variable 'xpath_variable_boolean::name' is not initialized in the constructor.
+[SVG_Parser\SVG_Parser\pugixml.cpp:6616]: (warning) Member variable 'xpath_variable_number::name' is not initialized in the constructor.
+[SVG_Parser\SVG_Parser\pugixml.cpp:6626]: (warning) Member variable 'xpath_variable_string::name' is not initialized in the constructor.
