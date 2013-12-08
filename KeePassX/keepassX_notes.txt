@@ -1,0 +1,29 @@
+Password Generator
+
+    - nice feature, allows to specify sets of characters, displays enthrophy etc.
+    - but as random source is used Libgcypt with GCRY_STRONG_RANDOM setting, which is recomended 
+      for session keys etc. User cannot set strength of randomness for long term passwords 
+      specifically. 
+    - Thus good for most purposes, but some switch to enable better level of randomness could 
+      be usefull in same cases.
+      (flag GCRY_VERY_STRONG_RANDOM for example)
+
+Password database
+    - generated passwords can be very strong and are stored in encrypted form (256 bit AES) in 
+      database
+    - protected with master passwords with no limitations to strength, so security of application 
+      depends on user's master password which can be (and probablly will be) weaker then passwords
+      which are protected. 
+    - Database can be also protected by external key file, but this file has to be accesible to 	
+      application, therefore located on HDD. This if even weaker solution then one with master 
+      password.
+    - Even though password is hashed with Sha256 to be used as key, there is still possibility
+      that user will choose weak password and then any processing after is practically useless
+      because possible key space is small. In most cases simple dictionary attack will work, and will pay of because passwords and usernames stored inside can be very valuable. Eg. social 
+      networks credentials, email adresses with login information, maybe even some internet 
+      banking credentials, possibilities are endless.
+    - Generally there should be some limitation regarding master password, or support for 		
+      SmartCards would work nice for enhancing security.
+      
+Otherwise works nice and has very nice features, including expiration settings, easy install and 
+cross platform support.
