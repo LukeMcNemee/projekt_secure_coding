@@ -48,7 +48,9 @@ SVG image.
 \subsection{Input source}
 As said before, two possibilities of input are supported. These are distinguished by command line 
 parameter to program. when parameter is present, then it is considered as path to file with input 
-and program tries to open file with given filepath. Other option is to run program without parameter and then program accepts command line input. In this mode, every input is considered to be coordinate and is procesed this way. To end input from command line enter \textit{quit}. 
+and program tries to open file with given filepath. Other option is to run program without parameter
+and then program accepts command line input. In this mode, every input is considered to be coordinate
+and is procesed this way. To end input from command line enter \textit{quit}. 
 Program supposes every new coordinate on new line, multiple coordinates on one line are not 
 supported.
 
@@ -59,26 +61,26 @@ with flaweless operation of program on different platforms, so we decided to use
 instead.
 Formats are:
 \begin{itemize}
-\item{ddd:mm:ss[NS] ddd:mm:ss[WE] }
-\item{ddd:mm.mmmmm[NS] ddd:mm.mmmmm[WE]}
-\item{dddDmm'ss"[NS] dddDmm'ss"[WE]}
-\item{dddDmm.mmmmm'[NS] dddDmm.mmmmm'[WE]}
-\item{ddd.dddddd[NS] ddd.dddddd[WE]}
-\item{ddd.ddddddD[NS] ddd.ddddddD[WE]}
+\item{dd:mm:ss[NS] ddd:mm:ss[WE] }
+\item{dd:mm.mmmmm[NS] ddd:mm.mmmmm[WE]}
+\item{ddDmm'ss"[NS] dddDmm'ss"[WE]}
+\item{ddDmm.mmmmm'[NS] dddDmm.mmmmm'[WE]}
+\item{dd.dddddd[NS] ddd.dddddd[WE]}
+\item{dd.ddddddD[NS] ddd.ddddddD[WE]}
 
-\item{(-)ddd:mm:ss (-)ddd:mm:ss}
-\item{(-)ddd:mm.mmmmm (-)ddd:mm.mmmmm}
-\item{(-)dddDmm'ss" (-)dddDmm'ss"}
-\item{(-)dddDmm.mmmmm' (-)dddDmm.mmmmm'}
-\item{(-)ddd.dddddd (-)ddd.dddddd}
-\item{(-)ddd.ddddddD (-)ddd.ddddddD}
+\item{(-)dd:mm:ss (-)ddd:mm:ss}
+\item{(-)dd:mm.mmmmm (-)ddd:mm.mmmmm}
+\item{(-)ddDmm'ss" (-)dddDmm'ss"}
+\item{(-)ddDmm.mmmmm' (-)dddDmm.mmmmm'}
+\item{(-)dd.dddddd (-)ddd.dddddd}
+\item{(-)dd.ddddddD (-)ddd.ddddddD}
 
-\item{[NS]ddd:mm:ss.sss [WE]ddd:mm:ss.sss}
-\item{[NS]ddd:mm.mmmmm [WE]ddd:mm.mmmmm}
-\item{[NS]dddDmm'ss" [WE]dddDmm'ss"}
-\item{[NS]dddDmm.mmmmm' [WE]dddDmm.mmmmm'}
-\item{[NS]ddd.dddddd [WE]ddd.dddddd}
-\item{[NS]ddd.ddddddD [WE]ddd.ddddddD}
+\item{[NS]dd:mm:ss.sss [WE]ddd:mm:ss.sss}
+\item{[NS]dd:mm.mmmmm [WE]ddd:mm.mmmmm}
+\item{[NS]ddDmm'ss" [WE]dddDmm'ss"}
+\item{[NS]ddDmm.mmmmm' [WE]dddDmm.mmmmm'}
+\item{[NS]dd.dddddd [WE]ddd.dddddd}
+\item{[NS]dd.ddddddD [WE]ddd.ddddddD}
 \end{itemize}
 
 \paragraph{whitespaces}
@@ -90,6 +92,8 @@ supported and no whitespace characters are allowed inside of longitude or latitu
 In case of real numbers, any number of numerals behind 
 dot is supported, but only first six in case of degrees and first five in case of minutes are
 counted in final result, since such precision if more than enough with current GPS systems. 
+Also there is required at least one numeral after comma, so 49.0D 16.0D is valid, but 49D 16D 
+is not. This applies to all similar formats.
 
 \subparagraph{latitude}
 Latitude cannot exceed $90\circ$ as it is considered as overflow, ad generally there isn't place 
@@ -107,14 +111,14 @@ as previously, but different letters (\textbf{E} or \textbf{W}) or minus sign fo
 \item{49.21096N 16.59796E}
 \item{49.21096DN 16.59796DE}
  
-\item{049:12:34 016:36:00 }
+\item{49:12:34 016:36:00 }
 \item{49:12.577 16:36.006}
 \item{49D12'34" 16D36'00"}
 \item{49D12.577' 16D36.00'}
 \item{49.21096 16.59796}
 \item{49.21096D 16.59796D}
 
-\item{N049:12:34 E016:36:00 }
+\item{N49:12:34 E016:36:00 }
 \item{N49:12.577 E16:36.006}
 \item{N49D12'34" E16D36'00"}
 \item{N49D12.577' E16D36.00'}
@@ -124,6 +128,14 @@ as previously, but different letters (\textbf{E} or \textbf{W}) or minus sign fo
 
 \section{Output}
 There are two output formats, one is SVG file, which contains dots representing coordinates on Earth surface.\footnote{Not all browsers display SVG file correctly, Google Chrome is recomended} Other output is just text which is produced after all coordinates are processed. 
+
+\section{Summary}
+
+Whole project is quite large (about 5000 lines of code) which is caused by forbidden use of regular expresions. Thus pattern recognition to one 
+format from eighteen possible and the verifiacion of this format showed up to be quite complex task. We tried to use automata based programing 
+for this task, which caused code to be longer than normally would be expected. On the other hand, we hope that this solution will lead to more 
+secure way of input procesing.
+
 \end{document}
 
 
