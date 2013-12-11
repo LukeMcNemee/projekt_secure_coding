@@ -1,5 +1,4 @@
 Password Generator
-
     - nice feature, allows to specify sets of characters, displays enthrophy etc.
     - but as random source is used Libgcypt with GCRY_STRONG_RANDOM setting, which is recomended 
       for session keys etc. User cannot set strength of randomness for long term passwords 
